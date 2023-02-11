@@ -12,7 +12,8 @@ from loguru import logger
 from typing import List, Callable
 from collections import OrderedDict
 from czsc.enum import Mark, Direction
-from czsc.objects import BI, FX, RawBar, NewBar
+from czsc.objects import BI, FX, ZS, RawBar, NewBar
+from czsc.signals.utils import get_zs_seq
 from czsc.utils.echarts_plot import kline_pro
 from czsc import envs
 
@@ -190,6 +191,7 @@ class CZSC:
         self.freq = bars[0].freq
         self.get_signals = get_signals
         self.signals = None
+        self.zs:List[ZS] = [] # 根据笔形成的中枢
 
         for bar in bars:
             self.update(bar)
@@ -294,7 +296,9 @@ class CZSC:
                     s_index = i
                     break
             self.bars_raw = self.bars_raw[s_index:]
-
+            # 更新中枢
+            self.zs = get_zs_seq(self.bi_list)
+            
         if self.get_signals:
             self.signals = self.get_signals(c=self)
         else:
@@ -316,6 +320,10 @@ class CZSC:
         else:
             bi = None
             fx = None
+        if len(self.zs) > 0:
+            
+            pass
+        
         chart = kline_pro(kline, bi=bi, fx=fx, width=width, height=height, bs=bs,
                           title="{}-{}".format(self.symbol, self.freq.value))
         return chart

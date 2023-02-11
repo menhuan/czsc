@@ -120,6 +120,7 @@ class CzscAdvancedTrader:
         """直接在浏览器中打开分析结果"""
         file_html = os.path.join(home_path, "temp_czsc_advanced_trader.html")
         self.take_snapshot(file_html, width, height)
+        print(f"输出文件html{file_html}")
         webbrowser.open(file_html)
 
     def update(self, bar: RawBar):

@@ -50,11 +50,11 @@ bars_w = bg.bars['30分钟']
 def get_simple_signals(cat: CzscAdvancedTrader) -> OrderedDict:
     s = OrderedDict({"symbol": cat.symbol, "dt": cat.end_dt, "close": cat.latest_price})
     for _, c in cat.kas.items():
-        if c.freq == Freq.D:
+        if c.freq == Freq.F5:
             s.update(signals.bxt.get_s_three_bi(c, di=1))
             s.update(signals.bxt.get_s_base_xt(c, di=1))
 
-        if c.freq == Freq.W:
+        if c.freq == Freq.F30:
             s.update(signals.ta.get_s_macd(c, di=1))
             s.update(signals.ta.get_s_sma(c, di=1, t_seq=(5, 20, 60)))
     return s

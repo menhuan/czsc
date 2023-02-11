@@ -29,7 +29,7 @@ date_fmt = "%Y%m%d"
 
 
 class TushareProApi:
-    __token = ''
+    __token = 'a72e3a3b48930af327b8c4c67e31a478b27ac08f2f4eb709a64b8a16'
     __http_url = 'http://api.waditu.com'
 
     def __init__(self, token, timeout=30):
@@ -73,6 +73,7 @@ class TushareProApi:
 
 try:
     from tushare.util import upass
+    upass.set_token("a72e3a3b48930af327b8c4c67e31a478b27ac08f2f4eb709a64b8a16")
     pro = TushareProApi(upass.get_token(), timeout=60)
 except:
     print("Tushare Pro 初始化失败")
