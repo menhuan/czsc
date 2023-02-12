@@ -3,7 +3,7 @@ import zipfile
 from tqdm import tqdm
 import pandas as pd
 from czsc.analyze import *
-from czsc.enum import Freq
+from czsc.enums import Freq
 from collections import OrderedDict
 from czsc.signals.bxt import get_s_like_bs, get_s_d0_bi, get_s_bi_status, get_s_di_bi, get_s_base_xt, get_s_three_bi
 from czsc.signals.ta import get_s_single_k, get_s_three_k, get_s_macd

@@ -1,5 +1,6 @@
 # coding: utf-8
 
+
 from enum import Enum
 
 
@@ -10,16 +11,16 @@ class Operate(Enum):
     HO = "持币"  # Hold Other
 
     # 多头操作
-    LO = "开多"          # Long Open
-    LE = "平多"          # Long Exit
+    LO = "开多"  # Long Open
+    LE = "平多"  # Long Exit
     LA1 = "第一次加多仓"  # Long Add 1
     LA2 = "第二次加多仓"  # Long Add 2
     LR1 = "第一次减多仓"  # Long Reduce 1
     LR2 = "第二次减多仓"  # Long Reduce 2
 
     # 空头操作
-    SO = "开空"          # Short Open
-    SE = "平空"          # Short Exit
+    SO = "开空"  # Short Open
+    SE = "平空"  # Short Exit
     SA1 = "第一次加空仓"  # Short Add 1
     SA2 = "第二次加空仓"  # Short Add 2
     SR1 = "第一次减空仓"  # Short Reduce 1
@@ -43,8 +44,21 @@ class Freq(Enum):
     F15 = "15分钟"
     F30 = "30分钟"
     F60 = "60分钟"
+    F4H = "4小时"
     D = "日线"
     W = "周线"
     M = "月线"
     S = "季线"
     Y = "年线"
+
+
+class BiFreq(Enum):
+    F1 = "1m"
+    F5 = "5m"
+    F15 = "15m"
+    F30 = "30m"
+    F60 = "60m"
+    F4H = "4m"
+    D = "1d"
+    W = "1w"
+    M = "1M"

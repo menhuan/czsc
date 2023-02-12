@@ -18,7 +18,7 @@ from sklearn.preprocessing import KBinsDiscretizer
 from .. import envs
 from ..traders.advanced import CzscAdvancedTrader, BarGenerator
 from ..data import TsDataCache, freq_cn2ts
-from ..objects import RawBar, Signal
+from ..objects import RawBar, Signal,Freq
 from ..utils.cache import home_path
 
 
@@ -154,7 +154,7 @@ def check_signals_acc(bars: List[RawBar],
     if len(bars) < 600:
         return
 
-    sorted_freqs = ['1分钟', '5分钟', '15分钟', '30分钟', '60分钟', '日线', '周线', '月线', '季线', '年线']
+    sorted_freqs = [v.value for k,v in Freq.__members__.items()]
     freqs = sorted_freqs[sorted_freqs.index(base_freq) + 1:]
 
     if not signals:
@@ -183,11 +183,12 @@ def check_signals_acc(bars: List[RawBar],
 
         for signal in signals:
             html_path = os.path.join(home_path, signal.key)
+            print(f"输出的文件目录是：{html_path}")
             os.makedirs(html_path, exist_ok=True)
             if bar.dt - last_dt[signal.key] > timedelta(days=delta_days) and signal.is_match(ct.s):
                 file_html = f"{bar.symbol}_{signal.key}_{ct.s[signal.key]}_{bar.dt.strftime('%Y%m%d_%H%M')}.html"
                 file_html = os.path.join(html_path, file_html)
-                print(file_html)
+                print("输出的文件地址是",file_html)
                 ct.take_snapshot(file_html)
                 last_dt[signal.key] = bar.dt
 

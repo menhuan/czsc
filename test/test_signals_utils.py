@@ -6,7 +6,7 @@ import pandas as pd
 import czsc
 from czsc.signals.utils import down_cross_count, kdj_gold_cross, kdj_dead_cross, return_to_label
 from czsc.objects import RawBar
-from czsc.enum import Freq
+from czsc.enums import Freq
 from czsc import CZSC
 from czsc.signals.utils import is_bis_down, is_bis_up, get_zs_seq
 from test.test_analyze import read_daily
