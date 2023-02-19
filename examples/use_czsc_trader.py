@@ -5,13 +5,19 @@ email: zeng_bin8888@163.com
 create_dt: 2023/1/30 13:32
 describe: CzscTrader 使用案例
 """
+import random
 import sys
+
+from czsc.objects import BiFreq,Freq
+from data.coin_cache import BiAnDataCache
+from utils import BarGenerator
 
 sys.path.insert(0, '.')
 sys.path.insert(0, '..')
 
 import os
 from examples.strategies.czsc_strategy_sma5 import CzscStrategySMA5
+from czsc.strategies import CzscStrategyCoin
 
 os.environ['czsc_verbose'] = '1'
 
@@ -57,5 +63,26 @@ def example_qmt_manager():
 
 
 
+if __name__ == '__main__':
+    data_path1 = "/Users/ruiqi/data/code/czsc/examples/data_path" + "4"
+    if os.path.exists(data_path1):
+        import shutil
+        shutil.rmtree(data_path1)
+    from czsc.data.ts_cache import TsDataCache
+    data_path = r'./cache_data1'
+    dc = BiAnDataCache(data_path, sdt='2010-01-01', edt='20211209')
 
+    symbol = 'DYDXUSDT'
+    bars = dc.bian_btc_daily(ts_code=symbol, raw_bar=True, interval=BiFreq.F30.value, frep=Freq.F30)
+
+    tactic = CzscStrategyCoin(symbol=symbol)
+    # K线合成器，这是多级别联立分析的数据支撑。从30分钟线合成4小时,日线
+    bg = BarGenerator(base_freq=Freq.F30.value, freqs=[Freq.F4H.value, Freq.D.value], max_count=5000)
+    for bar in bars:
+        bg.update(bar)
+    tactic.replay(bars,res_path=data_path1,bg=bg,sdt="2023-02-08 12:00:00")
+
+
+
+    # trader = tactic.replay(bars, res_path=r"C:\ts_data_czsc\trade_replay_test_c", sdt='20170101')
 

@@ -142,8 +142,11 @@ class CzscStrategyBase(ABC):
                     _dt = op['dt'].strftime('%Y%m%d#%H%M')
                     file_name = f"{op['op'].value}_{_dt}_{op['bid']}_{x_round(op['price'], 2)}_{op['op_desc']}.html"
                     file_html = os.path.join(pos_path, file_name)
+                    logger.info(f"输出的file_html文件地址是:{file_html}")
                     trader.take_snapshot(file_html)
                     logger.info(f'{file_html}')
+
+        trader.take_snapshot(file_html="/Users/ruiqi/.czsc/temp_czsc_advanced_trader.html")
 
         file_trader = os.path.join(res_path, "trader.ct")
         try:
@@ -390,4 +393,56 @@ def trader_strategy_a(symbol):
     return tactic
 
 
+class CzscStrategyCoin(CzscStrategyBase):
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+    @classmethod
+    def get_signals(cls, cat) -> OrderedDict:
+        s = OrderedDict({"symbol": cat.symbol, "dt": cat.end_dt, "close": cat.latest_price})
+        s.update(signals.bxt.get_s_three_bi(cat.kas[Freq.F30.value], di=3))
+        s.update(signals.cxt_first_buy_V221126(cat.kas[Freq.F30.value], di=5))
+        s.update(signals.cxt_first_buy_V221126(cat.kas[Freq.F30.value], di=7))
+        s.update(signals.cxt_first_sell_V221126(cat.kas[Freq.F30.value], di=5))
+        s.update(signals.cxt_first_sell_V221126(cat.kas[Freq.F30.value], di=7))
+        return s
+    @property
+    def positions(self) -> List[Position]:
+        return [
+            self.create_pos_a()
+        ]
+    @property
+    def freqs(self):
+        return [v.value for k,v in Freq.__members__.items()]
+
+    def create_pos_a(self):
+        opens = [
+            Event(name='开多', operate=Operate.LO, factors=[
+                Factor(name=f"{Freq.F30.value}一买", signals_all=[
+                    Signal(f"{Freq.F30.value}_D1B_BUY1_一买_任意_任意_0"),
+                ])
+            ]),
+            Event(name='开空', operate=Operate.SO, factors=[
+                Factor(name=f"{Freq.F30.value}一卖", signals_all=[
+                    Signal(f"{Freq.F30.value}_D1B_BUY1_一卖_任意_任意_0"),
+                ])
+            ]),
+        ]
+        pos = Position(name="A", symbol=self.symbol, opens=opens, exits=self.__shared_exits,
+                       interval=0, timeout=20, stop_loss=100)
+        return pos
+
+    @property
+    def __shared_exits(self):
+        return [
+            Event(name='平多', operate=Operate.LE, factors=[
+                Factor(name=f"{Freq.F30.value}三笔向上收敛", signals_all=[
+                    Signal(f"{Freq.F30.value}_倒1笔_三笔形态_向上收敛_任意_任意_0"),
+                ])
+            ]),
+            Event(name='平空', operate=Operate.SE, factors=[
+                Factor(name=f"{Freq.F30.value}三笔向下收敛", signals_all=[
+                    Signal(F"{Freq.F30.value}_倒1笔_三笔形态_向下收敛_任意_任意_0"),
+                ])
+            ]),
+        ]

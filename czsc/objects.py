@@ -265,7 +265,8 @@ class BI:
     @property
     def power_volume(self):
         """成交量力度"""
-        return sum([x.vol for x in self.bars[1:-1]])
+        logger.info(f"输出power_volume:{self.bars[1:-1]}")
+        return sum([float(x.vol) for x in self.bars[1:-1]])
 
     @property
     def change(self):
@@ -418,7 +419,7 @@ class Signal:
         key = self.key
         v = s.get(key, None)
         if not v:
-            raise ValueError(f"{key} 不在信号列表中")
+            raise ValueError(f"{key} 不在信号列表中,当前支持的信号是:{s}")
 
         v1, v2, v3, score = v.split("_")
         if int(score) >= self.score:

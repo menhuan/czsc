@@ -108,6 +108,7 @@ class CzscSignals:
         """直接在浏览器中打开分析结果"""
         file_html = os.path.join(home_path, "temp_czsc_advanced_trader.html")
         self.take_snapshot(file_html, width, height)
+        logger.info(f"输出html路径是:{file_html}")
         webbrowser.open(file_html)
 
     def update_signals(self, bar: RawBar):
@@ -268,6 +269,8 @@ class CzscTrader(CzscSignals):
             tab.add(chart, freq)
 
         signals = {k: v for k, v in self.s.items() if len(k.split("_")) == 3}
+        logger.info(f"信号原始数据是:{self.s}")
+        logger.info(f"输出的信号内容是:{signals}")
         for freq in self.freqs:
             # 按各周期K线分别加入信号表
             freq_signals = {k: signals[k] for k in signals.keys() if k.startswith("{}_".format(freq))}
@@ -288,10 +291,66 @@ class CzscTrader(CzscSignals):
             tab.add(t1, "其他信号")
 
         if file_html:
+            logger.info(f"输出html文件路径为:{file_html}")
             tab.render(file_html)
         else:
             return tab
+class CzscTraderBICoin(CzscTrader):
 
+    def __init__(self, bg: BarGenerator = None, get_signals: Callable = None, positions: List[Position] = None):
+        super().__init__(bg, get_signals=get_signals)
+        self.positions = positions
+
+    def take_snapshot(self, file_html=None, width: str = "1400px", height: str = "580px"):
+        """获取快照
+        :param file_html: 交易快照保存的 html 文件名
+        :param width: 图表宽度
+        :param height: 图表高度
+        :return:
+        """
+        tab = Tab(page_title="{}@{}".format(self.symbol, self.end_dt.strftime("%Y-%m-%d %H:%M")))
+        for freq in self.freqs:
+            ka: CZSC = self.kas[freq]
+            bs = None
+            if freq == self.base_freq:
+                # 在基础周期K线上加入最近的操作记录
+                bs = []
+                for pos in self.positions:
+                    for op in pos.operates:
+                        if op['dt'] >= ka.bars_raw[0].dt:
+                            _op = dict(op)
+                            _op['op_desc'] = f"{pos.name} | {_op['op_desc']}"
+                            bs.append(_op)
+
+            chart = ka.to_echarts(width, height, bs)
+            tab.add(chart, freq)
+
+        signals = {k: v for k, v in self.s.items() if len(k.split("_")) == 3}
+        logger.info(f"输出信号内容是:{signals}")
+        for freq in self.freqs:
+            # 按各周期K线分别加入信号表
+            freq_signals = {k: signals[k] for k in signals.keys() if k.startswith("{}_".format(freq))}
+            for k in freq_signals.keys():
+                signals.pop(k)
+            if len(freq_signals) <= 0:
+                continue
+            t1 = Table()
+            t1.add(["名称", "数据"], [[k, v] for k, v in freq_signals.items()])
+            t1.set_global_opts(title_opts=ComponentTitleOpts(title="缠中说禅信号表", subtitle=""))
+            tab.add(t1, f"{freq}信号")
+
+        if len(signals) > 0:
+            # 加入时间、持仓状态之类的其他信号
+            t1 = Table()
+            t1.add(["名称", "数据"], [[k, v] for k, v in signals.items()])
+            t1.set_global_opts(title_opts=ComponentTitleOpts(title="缠中说禅信号表", subtitle=""))
+            tab.add(t1, "其他信号")
+
+        if file_html:
+            logger.info(f"输出html文件路径为:{file_html}")
+            tab.render(file_html)
+        else:
+            return tab
 
 @deprecated(reason="择时策略将使用 Position + CzscTrader 代替")
 class CzscAdvancedTrader(CzscSignals):

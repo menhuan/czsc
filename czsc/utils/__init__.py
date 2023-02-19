@@ -13,6 +13,7 @@ from .bar_generator import BarGenerator, freq_end_time
 from .io import dill_dump, dill_load, read_json, save_json
 from .sig import check_pressure_support, check_gap_info, is_bis_down, is_bis_up, get_sub_elements
 from .sig import same_dir_counts, fast_slow_cross, count_last_same
+from czsc.objects import Freq
 
 
 def x_round(x: [float, int], digit=4):
@@ -55,7 +56,7 @@ def freqs_sorted(freqs):
     :param freqs: K线周期列表
     :return: K线周期排序列表
     """
-    sf = ['Tick', '1分钟', '5分钟', '15分钟', '30分钟', '60分钟', '日线', '周线', '月线', '季线', '年线']
+    sf = [v.value for k,v in Freq.__members__.items()]
     _freqs_new = [x for x in sf if x in freqs]
     return _freqs_new
 

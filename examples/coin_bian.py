@@ -25,7 +25,7 @@ data_path = r'./cache_data'
 dc = BiAnDataCache(data_path, sdt='2010-01-01', edt='20211209')
 
 symbol = 'DYDXUSDT'
-bars = dc.bian_btc_daily(ts_code=symbol, raw_bar=True,interval=BiFreq.F30.value,frep=Freq.F30)
+bars = dc.bian_btc_daily(ts_code=symbol, raw_bar=True,interval=BiFreq.F15.value,frep=Freq.F15)
 
 
 def zhen_cang_tu_po_V230204(c: CZSC, **kwargs) -> OrderedDict:
@@ -101,7 +101,7 @@ def zhen_cang_tu_po_V230204(c: CZSC, **kwargs) -> OrderedDict:
 def get_signals(cat: CzscAdvancedTrader) -> OrderedDict:
     s = OrderedDict({"symbol": cat.symbol, "dt": cat.end_dt, "close": cat.latest_price})
     # 使用缓存来更新信号的方法
-    s.update(zhen_cang_tu_po_V230204(cat.kas[Freq.F30.value], di=1,n=10))
+    s.update(zhen_cang_tu_po_V230204(cat.kas['15分钟'], di=1,n=10))
     #s.update(zhen_cang_tu_po_V230204(cat.kas['5分钟'], di=1,n=10))
     #s.update(zhen_cang_tu_po_V230204(cat.kas['30分钟'], di=1,n=10))
     return s
@@ -110,8 +110,8 @@ def get_signals(cat: CzscAdvancedTrader) -> OrderedDict:
 def trader_strategy_base(symbol):
     tactic = {
         "symbol": symbol,
-        "base_freq": Freq.F30.value,
-        "freqs": [Freq.F60.value, Freq.F4H.value,Freq.D.value],
+        "base_freq": '15分钟',
+        "freqs": ['30分钟', '60分钟', '日线'],
         "get_signals": get_signals,
         "signals_n": 0,
     }
@@ -120,7 +120,7 @@ def trader_strategy_base(symbol):
 
 if __name__ == '__main__':
     # 直接查看全部信号的隔日快照
-    check_signals_acc(bars,strategy=trader_strategy_base)
+    check_signals_acc(bars, strategy=trader_strategy_base)
 
     # 查看指定信号的隔日快照
     # signals = [

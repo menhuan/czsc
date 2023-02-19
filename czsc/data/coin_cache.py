@@ -12,7 +12,7 @@ describe:
 import os.path
 import shutil
 
-import loguru
+from loguru import logger
 import pandas as pd
 from tqdm import tqdm
 from typing import List
@@ -107,22 +107,26 @@ class BiAnDataCache:
             request_params = {"symbol": ts_code, "interval": interval, "startTime": start_date, "endTime": end_date,
                               "limit": limit}
             response = requests.get("https://api4.binance.com/api/v3/klines", request_params)
-            #print("接收到的数据为",response.json(),"请求数据是",request_params)
+            print("接收到的request_status",response.status_code,"请求数据是",request_params)
             if response.status_code == 200 :
                 for index, content in enumerate(response.json()):
+                    vol = content[5]
+                    if len(content[5].split(".")) > 2:
+                        vol = content[5].spilt(".")[0]
+
                     # 将每一根K线转换成 RawBar 对象
-                    bar = RawBar(symbol="BTCUSDT", dt=pd.to_datetime(content[0] / 1000, unit="s"),
+                    bar = RawBar(symbol=ts_code, dt=pd.to_datetime(content[0] / 1000, unit="s"),
                                  id=index, freq=frep, open=float(content[1]), close=float(content[4]),
                                  high=float(content[2]), low=float(content[3]),
-                                 vol=content[5],  # 成交量
+                                 vol=vol,  # 成交量
                                  amount=content[7],  # 成交额，默认单位
                                  )
                     bars.append(bar)
             else:
-                loguru.Logger.info(f"请求接口失败，return response:{response.json()}")
+                logger.info(f"请求接口失败，return response:{response.json()}")
             # df = pd.array(bars)
             # df.to_feather(bars)
-        #print(f"转换完k线结果输出{bars}")
+        #logger.info(f"转换完k线结果输出{bars}")
         return bars
 
 

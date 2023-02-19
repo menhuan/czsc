@@ -8,6 +8,8 @@ import os
 import glob
 import warnings
 import traceback
+
+import loguru
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
@@ -16,7 +18,7 @@ from typing import Callable, List, AnyStr
 from sklearn.preprocessing import KBinsDiscretizer
 
 from .. import envs
-from ..traders.advanced import CzscAdvancedTrader, BarGenerator
+from ..traders.base import CzscAdvancedTrader, BarGenerator
 from ..data import TsDataCache, freq_cn2ts
 from ..objects import RawBar, Signal,Freq
 from ..utils.cache import home_path
@@ -165,7 +167,7 @@ def check_signals_acc(bars: List[RawBar],
         for col in s_cols:
             signals.extend([Signal(f"{col}_{v}") for v in df[col].unique() if "其他" not in v])
 
-    print(f"signals: {'+' * 100}")
+    loguru.logger.info(f"signals: {'+' * 100}")
     for row in signals:
         print(f"- {row}")
 
@@ -177,13 +179,13 @@ def check_signals_acc(bars: List[RawBar],
 
     ct = CzscAdvancedTrader(bg, strategy)
     last_dt = {signal.key: ct.end_dt for signal in signals}
-
+    loguru.logger.info(f"输出有的笔信号有哪些:{signals}")
     for bar in tqdm(bars_right, desc=f'generate snapshots of {bg.symbol}'):
         ct.update(bar)
 
         for signal in signals:
             html_path = os.path.join(home_path, signal.key)
-            print(f"输出的文件目录是：{html_path}")
+            #print(f"输出的文件目录是：{html_path}")
             os.makedirs(html_path, exist_ok=True)
             if bar.dt - last_dt[signal.key] > timedelta(days=delta_days) and signal.is_match(ct.s):
                 file_html = f"{bar.symbol}_{signal.key}_{ct.s[signal.key]}_{bar.dt.strftime('%Y%m%d_%H%M')}.html"
