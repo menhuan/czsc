@@ -18,3 +18,7 @@ click
 pytest
 tenacity>=8.1.0
 requests-toolbelt>=0.10.1
+pymongo
+pytz
+
+

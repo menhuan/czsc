@@ -62,3 +62,5 @@ class BiFreq(Enum):
     D = "1d"
     W = "1w"
     M = "1M"
+
+

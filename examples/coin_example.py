@@ -7,16 +7,18 @@ describe: 验证信号计算的准确性，仅适用于缠论笔相关的信号�
           技术指标构建的信号，用这个工具检查不是那么方便
 """
 import sys
+
+from signals.bxt import get_s_three_bi
+from traders import check_signals_acc
+
 sys.path.insert(0, '..')
 import os
 from typing import List
 from collections import OrderedDict
 from czsc.data.coin_cache import BiAnDataCache
-from czsc import CzscAdvancedTrader, CZSC
+from czsc import  CZSC
 from czsc.objects import Signal, Freq, RawBar,BiFreq
 from czsc.utils import get_sub_elements
-from czsc.sensors.utils import check_signals_acc
-from czsc import signals
 
 
 os.environ['czsc_verbose'] = '1'
@@ -102,6 +104,7 @@ def get_signals(cat: CzscAdvancedTrader) -> OrderedDict:
     s = OrderedDict({"symbol": cat.symbol, "dt": cat.end_dt, "close": cat.latest_price})
     # 使用缓存来更新信号的方法
     s.update(zhen_cang_tu_po_V230204(cat.kas[Freq.F30.value], di=1,n=10))
+    s.update(get_s_three_bi(cat.kas[Freq.F30.value], di=1,n=10))
     #s.update(zhen_cang_tu_po_V230204(cat.kas['5分钟'], di=1,n=10))
     #s.update(zhen_cang_tu_po_V230204(cat.kas['30分钟'], di=1,n=10))
     return s
