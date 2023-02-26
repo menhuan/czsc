@@ -58,7 +58,7 @@ class BiFreq(Enum):
     F15 = "15m"
     F30 = "30m"
     F60 = "60m"
-    F4H = "4m"
+    F4H = "4h"
     D = "1d"
     W = "1w"
     M = "1M"

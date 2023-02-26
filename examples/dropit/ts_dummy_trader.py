@@ -7,9 +7,6 @@ describe: 使用 CzscDummyTrader 进行快速的族系研究
 """
 import os.path
 import pandas as pd
-from czsc.strategies import trader_strategy_a as strategy
-from czsc.traders.advanced import CzscDummyTrader
-from czsc.sensors.utils import generate_symbol_signals
 from examples import dc
 
 

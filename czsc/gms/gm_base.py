@@ -17,7 +17,6 @@ except:
 from datetime import datetime, timedelta
 from collections import OrderedDict
 from typing import List, Callable
-from czsc import CzscAdvancedTrader, create_advanced_trader
 from czsc.data import freq_cn2gm
 from czsc.utils import qywx as wx
 from czsc.utils import BarGenerator

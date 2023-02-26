@@ -14,10 +14,11 @@ from copy import deepcopy
 from abc import ABC, abstractmethod
 from loguru import logger
 from czsc import signals
-from czsc.objects import RawBar, List, Operate, Signal, Factor, Event, Position,Freq,BiFreq
+from czsc.objects import RawBar, List, Operate, Signal, Factor, Event, Position, Freq, BiFreq
 from collections import OrderedDict
 from czsc.traders.base import CzscTrader
 from czsc.utils import x_round, freqs_sorted, BarGenerator, dill_dump
+from signals.bxt import get_s_like_bs
 
 
 class CzscStrategyBase(ABC):
@@ -29,6 +30,7 @@ class CzscStrategyBase(ABC):
     3. 交易信号计算函数
     4. 持仓策略列表
     """
+
     def __init__(self, **kwargs):
         self.kwargs = kwargs
 
@@ -151,9 +153,9 @@ class CzscStrategyBase(ABC):
                     logger.info(f"输出的file_html文件地址是:{file_html}")
                     trader.take_snapshot(file_html)
                     logger.info(f'{file_html}')
-
-        trader.take_snapshot(file_html="/Users/ruiqi/.czsc/temp_czsc_advanced_trader.html")
-
+                else:
+                    logger.info(f"不符合交易指标：{position.operates},{position.operates} {bar.dt}  ")
+        trader.take_snapshot(os.path.join(pos_path, "temp_czsc_advanced_trader.html"))
         file_trader = os.path.join(res_path, "trader.ct")
         try:
             dill_dump(trader, file_trader)
@@ -255,56 +257,139 @@ class CzscStrategyExample1(CzscStrategyBase):
                        interval=0, timeout=20, stop_loss=50)
         return pos
 
+
+# 用来验证策略开多函数。如果我只是想验证新号的话就用single
 class CzscStrategyCoin(CzscStrategyBase):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
     @classmethod
     def get_signals(cls, cat) -> OrderedDict:
         s = OrderedDict({"symbol": cat.symbol, "dt": cat.end_dt, "close": cat.latest_price})
-        s.update(signals.bxt.get_s_three_bi(cat.kas[Freq.F30.value], di=3))
-        s.update(signals.cxt_first_buy_V221126(cat.kas[Freq.F30.value], di=5))
-        s.update(signals.cxt_first_buy_V221126(cat.kas[Freq.F30.value], di=7))
-        s.update(signals.cxt_first_sell_V221126(cat.kas[Freq.F30.value], di=5))
-        s.update(signals.cxt_first_sell_V221126(cat.kas[Freq.F30.value], di=7))
+        for bi in range(5, 9, 2):
+            s.update(signals.bxt.get_s_three_bi(cat.kas[Freq.F30.value], di=bi))
+            s.update(signals.cxt_first_buy_V221126(cat.kas[Freq.F30.value], di=bi))
+            s.update(signals.cxt_first_sell_V221126(cat.kas[Freq.F30.value], di=bi))
+        s.update(get_s_like_bs(cat.kas[Freq.F30.value], di=1))
+
         return s
+
     @property
     def positions(self) -> List[Position]:
         return [
-            self.create_pos_a()
+            self.create_pos_a(),
+            self.creat_pos_b()
         ]
+
     @property
     def freqs(self):
-        return [v.value for k,v in Freq.__members__.items()]
+        # yon
+        return [Freq.F30.value, Freq.F4H.value, Freq.D.value]
 
     def create_pos_a(self):
         opens = [
             Event(name='开多', operate=Operate.LO, factors=[
-                Factor(name=f"{Freq.F30.value}一买", signals_all=[
-                    Signal(f"{Freq.F30.value}_D1B_BUY1_一买_任意_任意_0"),
-                ])
+                Factor(name=f"{Freq.F30.value}一买", signals_any=[
+                    Signal(f"{Freq.F30.value}_D{bi}B_BUY1_一买_{bi}笔_任意_0") for bi in range(5, 9, 2)
+                ], signals_all=[
+                    Signal(f"{Freq.F30.value}_D{5}B_BUY1_一买_{5}笔_任意_0")
+                ]
+                       )
             ]),
             Event(name='开空', operate=Operate.SO, factors=[
-                Factor(name=f"{Freq.F30.value}一卖", signals_all=[
-                    Signal(f"{Freq.F30.value}_D1B_BUY1_一卖_任意_任意_0"),
-                ])
+                Factor(name=f"{Freq.F30.value}一卖", signals_any=[
+                    Signal(f"{Freq.F30.value}_D{bi}B_BUY1_一买_{bi}笔_任意_0") for bi in range(5, 9, 2)
+                ], signals_all=[Signal(f"{Freq.F30.value}_D5B_BUY1_一买_{5}笔_任意_0")]
+                       )
             ]),
         ]
+
         pos = Position(name="A", symbol=self.symbol, opens=opens, exits=self.__shared_exits,
-                       interval=0, timeout=20, stop_loss=100)
+                       interval=3600 * 4, timeout=100, stop_loss=1000)
+        return pos
+    def creat_pos_b(self):
+        opens = [
+            Event(name='开多', operate=Operate.LO, factors=[
+                Factor(name=f"{Freq.F30.value}一买", signals_any=[
+                    Signal(f"{Freq.F30.value}_倒{1}笔_类买卖点_类一买_任意_任意_0"),
+                    Signal(f"{Freq.F30.value}_倒{1}笔_类买卖点_类二买_任意_任意_0"),
+                    Signal(f"{Freq.F30.value}_倒{1}笔_类买卖点_类三买_任意_任意_0"),
+                ], signals_all=[
+                    Signal(f"{Freq.F30.value}_倒{1}笔_类买卖点_类一买_任意_任意_0")
+                ]
+                       )
+            ]),
+            Event(name='开空', operate=Operate.SO, factors=[
+                Factor(name=f"{Freq.F30.value}一卖", signals_any=[
+                    Signal(f"{Freq.F30.value}_倒{1}笔_类买卖点_类一卖_任意_任意_0")
+                ], signals_all=[Signal(f"{Freq.F30.value}_倒{1}笔_类买卖点_类一卖_任意_任意_0")]
+                       )
+            ]),
+        ]
+
+        pos = Position(name="A", symbol=self.symbol, opens=opens, exits=self.__shared_exits,
+                       interval=3600 * 4, timeout=100, stop_loss=1000)
         return pos
 
     @property
     def __shared_exits(self):
         return [
             Event(name='平多', operate=Operate.LE, factors=[
-                Factor(name=f"{Freq.F30.value}三笔向上收敛", signals_all=[
-                    Signal(f"{Freq.F30.value}_倒1笔_三笔形态_向上收敛_任意_任意_0"),
+                Factor(name=f"{Freq.F30.value}一卖", signals_all=[
+                    Signal(f"{Freq.F30.value}_D5B_SELL1_一卖_7笔_任意_0"),
                 ])
             ]),
             Event(name='平空', operate=Operate.SE, factors=[
-                Factor(name=f"{Freq.F30.value}三笔向下收敛", signals_all=[
-                    Signal(F"{Freq.F30.value}_倒1笔_三笔形态_向下收敛_任意_任意_0"),
+                Factor(name=f"{Freq.F30.value}一买", signals_all=[
+                    Signal(F"{Freq.F30.value}_D5B_BUY1_一买_5笔_任意_0"),
                 ])
             ]),
         ]
+
+    def replay(self, bars: List[RawBar], res_path, **kwargs):
+        """交易策略交易过程回放
+        :param bars: 基础周期K线
+        :param res_path: 结果目录
+        :param kwargs:
+            bg   已经初始化好的BarGenerator对象，如果传入了bg，则忽略sdt和n参数
+            sdt  初始化开始日期
+            n    初始化最小K线数量
+        :return:
+        """
+        if kwargs.get('refresh', False):
+            shutil.rmtree(res_path, ignore_errors=True)
+
+        exist_ok = kwargs.get("exist_ok", False)
+        if os.path.exists(res_path) and not exist_ok:
+            logger.warning(f"结果文件夹存在且不允许覆盖：{res_path}，如需执行，请先删除文件夹")
+            return
+        os.makedirs(res_path, exist_ok=exist_ok)
+
+        bg, bars2 = self.init_bar_generator(bars, **kwargs)
+        trader = CzscTrader(bg, get_signals=deepcopy(self.get_signals), positions=deepcopy(self.positions))
+        for position in trader.positions:
+            pos_path = os.path.join(res_path, position.name)
+            os.makedirs(pos_path, exist_ok=exist_ok)
+
+        for bar in bars2:
+            trader.on_bar(bar)
+            for position in trader.positions:
+                pos_path = os.path.join(res_path, position.name)
+
+                if position.operates and position.operates[-1]['dt'] == bar.dt:
+                    op = position.operates[-1]
+                    _dt = op['dt'].strftime('%Y%m%d#%H%M')
+                    file_name = f"{op['op'].value}_{_dt}_{op['bid']}_{x_round(op['price'], 2)}_{op['op_desc']}.html"
+                    file_html = os.path.join(pos_path, file_name)
+                    logger.info(f"输出的file_html文件地址是:{file_html}")
+                    trader.take_snapshot(file_html)
+                    logger.info(f'{file_html}')
+        trader.take_snapshot("temp_czsc_advanced_trader.html")
+        file_trader = os.path.join(res_path, "trader.ct")
+        try:
+            dill_dump(trader, file_trader)
+            logger.info(f"交易对象保存到：{file_trader}")
+        except Exception as e:
+            logger.error(f"交易对象保存失败：{e}；通常的原因是交易对象中包含了不支持序列化的对象，比如函数")
+        return trader

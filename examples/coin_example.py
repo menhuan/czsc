@@ -8,7 +8,7 @@ describe: 验证信号计算的准确性，仅适用于缠论笔相关的信号�
 """
 import sys
 
-from signals.bxt import get_s_three_bi
+from signals.bxt import get_s_three_bi, check_five_bi, get_s_like_bs
 from traders import check_signals_acc
 
 sys.path.insert(0, '..')
@@ -16,7 +16,7 @@ import os
 from typing import List
 from collections import OrderedDict
 from czsc.data.coin_cache import BiAnDataCache
-from czsc import  CZSC
+from czsc import CZSC, CzscSignals
 from czsc.objects import Signal, Freq, RawBar,BiFreq
 from czsc.utils import get_sub_elements
 
@@ -26,7 +26,7 @@ os.environ['czsc_verbose'] = '1'
 data_path = r'./cache_data'
 dc = BiAnDataCache(data_path, sdt='2010-01-01', edt='20211209')
 
-symbol = 'DYDXUSDT'
+symbol = 'BNBUSDT'
 bars = dc.bian_btc_daily(ts_code=symbol, raw_bar=True,interval=BiFreq.F30.value,frep=Freq.F30)
 
 
@@ -100,11 +100,12 @@ def zhen_cang_tu_po_V230204(c: CZSC, **kwargs) -> OrderedDict:
     return s
 
 
-def get_signals(cat: CzscAdvancedTrader) -> OrderedDict:
+def get_signals(cat: CzscSignals) -> OrderedDict:
     s = OrderedDict({"symbol": cat.symbol, "dt": cat.end_dt, "close": cat.latest_price})
     # 使用缓存来更新信号的方法
     s.update(zhen_cang_tu_po_V230204(cat.kas[Freq.F30.value], di=1,n=10))
-    s.update(get_s_three_bi(cat.kas[Freq.F30.value], di=1,n=10))
+    s.update(get_s_three_bi(cat.kas[Freq.F30.value], di=1))
+    s.update(get_s_three_bi(cat.kas[Freq.F30.value], di=1))
     #s.update(zhen_cang_tu_po_V230204(cat.kas['5分钟'], di=1,n=10))
     #s.update(zhen_cang_tu_po_V230204(cat.kas['30分钟'], di=1,n=10))
     return s
@@ -123,9 +124,11 @@ def trader_strategy_base(symbol):
 
 if __name__ == '__main__':
     # 直接查看全部信号的隔日快照
-    check_signals_acc(bars,strategy=trader_strategy_base)
-
-    # 查看指定信号的隔日快照
+    for symbol in ["BTCUSDT"]:
+        dc = BiAnDataCache(data_path, sdt='2010-01-01', edt='20211209')
+        bars = dc.bian_btc_daily(ts_code=symbol, raw_bar=True, interval=BiFreq.F30.value, frep=Freq.F30)
+        check_signals_acc(bars,get_signals=get_signals,strategy=trader_strategy_base)
+# 查看指定信号的隔日快照
     # signals = [
     #     Signal('5分钟_N10M3_震仓突破_向上_任意_任意_0'),
     #     Signal("15分钟_N10M3_震仓突破_向上_任意_任意_0"),

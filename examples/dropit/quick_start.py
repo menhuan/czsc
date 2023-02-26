@@ -8,7 +8,7 @@ describe: 以 Tushare 数据为例编写快速入门样例
 import os
 import pandas as pd
 from collections import OrderedDict
-from czsc import CZSC, CzscAdvancedTrader, Freq
+from czsc import CZSC, Freq, CzscSignals
 from czsc.utils import BarGenerator
 from czsc import signals
 from czsc.data import TsDataCache
@@ -43,7 +43,7 @@ bars_w = bg.bars['周线']
 
 
 # 定义一些需要观察的信号，可以是多级别同时计算
-def get_simple_signals(cat: CzscAdvancedTrader) -> OrderedDict:
+def get_simple_signals(cat: CzscSignals) -> OrderedDict:
     s = OrderedDict({"symbol": cat.symbol, "dt": cat.end_dt, "close": cat.latest_price})
     for _, c in cat.kas.items():
         if c.freq == Freq.D:
@@ -60,6 +60,6 @@ def simple_strategy(symbol):
     return {"symbol": symbol, "get_signals": get_simple_signals}
 
 
-cat = CzscAdvancedTrader(bg, simple_strategy)
+cat = CzscSignals(bg, simple_strategy)
 cat.open_in_browser()
 

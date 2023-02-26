@@ -186,7 +186,7 @@ def check_signals_acc(bars: List[RawBar], get_signals: Callable, delta_days: int
         return
 
     if not kwargs.get('freqs', None):
-        sorted_freqs = ['1分钟', '5分钟', '15分钟', '30分钟', '60分钟', '日线', '周线', '月线', '季线', '年线']
+        sorted_freqs = ['1分钟', '5分钟', '15分钟', '30分钟','60分钟', '4小时', '日线', '周线', '月线', '季线', '年线']
         freqs = sorted_freqs[sorted_freqs.index(base_freq) + 1:]
     else:
         freqs = kwargs['freqs']
@@ -216,10 +216,9 @@ def check_signals_acc(bars: List[RawBar], get_signals: Callable, delta_days: int
         for signal in signals:
             html_path = os.path.join(home_path, signal.key)
             os.makedirs(html_path, exist_ok=True)
-            if bar.dt - last_dt[signal.key] > timedelta(days=delta_days) and signal.is_match(ct.s):
+            if bar.dt - last_dt[signal.key] > timedelta(minutes=delta_days*30) and signal.is_match(ct.s):
                 file_html = f"{bar.symbol}_{signal.key}_{ct.s[signal.key]}_{bar.dt.strftime('%Y%m%d_%H%M')}.html"
                 file_html = os.path.join(html_path, file_html)
-                print(file_html)
                 ct.take_snapshot(file_html)
                 last_dt[signal.key] = bar.dt
 
@@ -326,8 +325,6 @@ class CzscTrader(CzscSignals):
             tab.add(chart, freq)
 
         signals = {k: v for k, v in self.s.items() if len(k.split("_")) == 3}
-        logger.info(f"信号原始数据是:{self.s}")
-        logger.info(f"输出的信号内容是:{signals}")
         for freq in self.freqs:
             # 按各周期K线分别加入信号表
             freq_signals = {k: signals[k] for k in signals.keys() if k.startswith("{}_".format(freq))}

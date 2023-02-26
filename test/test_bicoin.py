@@ -7,7 +7,7 @@ from czsc.objects import RawBar
 def test_kline():
     request_params ={"symbol": "DYDXUSDT","interval":"5m","limit":1000, "startTime":1512100800000, "endTime":1674889200000}
     response = requests.get("https://api4.binance.com/api/v3/klines",request_params)
-    print("输出k线数据",response.json())
+    #print("输出k线数据",response.json())
     bars = []
     for index, content in enumerate(response.json()):
         # 将每一根K线转换成 RawBar 对象

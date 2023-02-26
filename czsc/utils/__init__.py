@@ -57,6 +57,6 @@ def freqs_sorted(freqs):
     :return: K线周期排序列表
     """
     sf = [v.value for k,v in Freq.__members__.items()]
-    _freqs_new = [x for x in sf if x in freqs]
+    _freqs_new = [x for x in sf if x in freqs and x is not Freq.Tick.value]
     return _freqs_new
 

@@ -107,15 +107,12 @@ class BiAnDataCache:
             request_params = {"symbol": ts_code, "interval": interval, "startTime": start_date, "endTime": end_date,
                               "limit": limit}
             response = requests.get("https://api4.binance.com/api/v3/klines", request_params)
-            print("接收到的request_status",response.status_code,"请求数据是",request_params)
+            logger.info(f"接收到的request_status{response.status_code}请求数据是{request_params}")
             if response.status_code == 200 :
                 for index, content in enumerate(response.json()):
-                    vol = content[5]
-                    if len(content[5].split(".")) > 2:
-                        vol = content[5].spilt(".")[0]
-
+                    vol = content[5].split(".")[0]
                     # 将每一根K线转换成 RawBar 对象
-                    bar = RawBar(symbol=ts_code, dt=pd.to_datetime(content[0] / 1000, unit="s"),
+                    bar = RawBar(symbol=ts_code, dt=pd.to_datetime((content[0] + 8*60*60*1000) / 1000, unit="s"),
                                  id=index, freq=frep, open=float(content[1]), close=float(content[4]),
                                  high=float(content[2]), low=float(content[3]),
                                  vol=vol,  # 成交量

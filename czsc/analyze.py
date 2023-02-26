@@ -12,7 +12,7 @@ from loguru import logger
 from typing import List, Callable
 from collections import OrderedDict
 from czsc.enums import Mark, Direction
-from czsc.objects import BI, FX, RawBar, NewBar
+from czsc.objects import BI, FX, RawBar, NewBar, ZS
 from czsc.utils.echarts_plot import kline_pro
 from czsc import envs
 
@@ -79,8 +79,8 @@ def check_fx(k1: NewBar, k2: NewBar, k3: NewBar):
 def check_fxs(bars: List[NewBar]) -> List[FX]:
     """输入一串无包含关系K线，查找其中所有分型"""
     fxs = []
-    for i in range(1, len(bars)-1):
-        fx: FX = check_fx(bars[i-1], bars[i], bars[i+1])
+    for i in range(1, len(bars) - 1):
+        fx: FX = check_fx(bars[i - 1], bars[i], bars[i + 1])
         if isinstance(fx, FX):
             # 这里可能隐含Bug，默认情况下，fxs本身是顶底交替的，但是对于一些特殊情况下不是这样，这是不对的。
             # 临时处理方案，强制要求fxs序列顶底交替
@@ -167,7 +167,9 @@ def check_bi(bars: List[NewBar], benchmark: float = None):
             return bi, bars_b
     else:
         return None, bars
-
+def check_zf():
+    # 查找中枢
+    pass
 
 class CZSC:
     def __init__(self,
@@ -190,12 +192,22 @@ class CZSC:
         self.freq = bars[0].freq
         self.get_signals = get_signals
         self.signals = None
+        self.zf: List[ZS] = []  # 中枢
 
         for bar in bars:
             self.update(bar)
 
     def __repr__(self):
         return "<CZSC~{}~{}>".format(self.symbol, self.freq.value)
+
+    # 中枢更新
+    def __update_zf(self):
+        bi_list = self.bi_list
+        # 笔的数量大于3 才能构建中枢
+        if len(bi_list) < 3:
+            return
+
+
 
     def __update_bi(self):
         bars_ubi = self.bars_ubi

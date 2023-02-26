@@ -78,10 +78,11 @@ if __name__ == '__main__':
 
     tactic = CzscStrategyCoin(symbol=symbol)
     # K线合成器，这是多级别联立分析的数据支撑。从30分钟线合成4小时,日线
-    bg = BarGenerator(base_freq=Freq.F30.value, freqs=[Freq.F4H.value, Freq.D.value], max_count=5000)
-    for bar in bars:
-        bg.update(bar)
-    tactic.replay(bars,res_path=data_path1,bg=bg,sdt="2023-02-08 12:00:00")
+    # bg = BarGenerator(base_freq=Freq.F30.value, freqs=[Freq.F4H.value, Freq.D.value], max_count=5000)
+    # for bar in bars:
+    #     bg.update(bar)
+
+    tactic.replay(bars,res_path=data_path1,sdt="2023-02-21 12:00:00",n=500,refresh=True,exist_ok=True)
 
 
 

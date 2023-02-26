@@ -9,7 +9,6 @@ import math
 from dataclasses import dataclass
 from datetime import datetime
 from loguru import logger
-from deprecated import deprecated
 from typing import List, Callable
 
 from czsc.enums import Mark, Direction, Freq, Operate,BiFreq
@@ -41,6 +40,7 @@ class RawBar:
     vol: [float, int]
     amount: [float, int] = None
     cache: dict = None  # cache 用户缓存，一个最常见的场景是缓存技术指标计算结果
+    _id : int  = 0  # 时间戳 作为mongo的主键
 
     @property
     def upper(self):
@@ -57,7 +57,8 @@ class RawBar:
         """实体"""
         return abs(self.open - self.close)
 
-
+    def get_dt_id(self):
+        return self._id
 @dataclass
 class NewBar:
     """去除包含关系后的K线元素"""
@@ -265,7 +266,6 @@ class BI:
     @property
     def power_volume(self):
         """成交量力度"""
-        logger.info(f"输出power_volume:{self.bars[1:-1]}")
         return sum([float(x.vol) for x in self.bars[1:-1]])
 
     @property

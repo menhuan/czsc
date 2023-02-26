@@ -9,6 +9,7 @@ describe: 验证信号计算的准确性，仅适用于缠论笔相关的信号�
 import sys
 
 from traders import check_signals_acc
+from traders.base import CzscTraderBICoin
 
 sys.path.insert(0, '..')
 import os
@@ -99,7 +100,7 @@ def zhen_cang_tu_po_V230204(c: CZSC, **kwargs) -> OrderedDict:
     return s
 
 
-def get_signals(cat: CzscTrader) -> OrderedDict:
+def get_signals(cat: CzscTraderBICoin) -> OrderedDict:
     s = OrderedDict({"symbol": cat.symbol, "dt": cat.end_dt, "close": cat.latest_price})
     # 使用缓存来更新信号的方法
     s.update(zhen_cang_tu_po_V230204(cat.kas['15分钟'], di=1,n=10))

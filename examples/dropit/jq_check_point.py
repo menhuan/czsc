@@ -11,8 +11,6 @@ os.environ['czsc_min_bi_len'] = '6'
 os.environ['czsc_bi_change_th'] = '1'
 
 from czsc.data.jq import get_init_bg
-from czsc import create_advanced_trader
-from czsc.strategies import trader_example1, trader_strategy_a
 
 
 def trader_tactic_snapshot(symbol, strategy, end_dt=None, file_html=None, fq=True, max_count=1000):
