@@ -14,6 +14,7 @@ from .io import dill_dump, dill_load, read_json, save_json
 from .sig import check_pressure_support, check_gap_info, is_bis_down, is_bis_up, get_sub_elements
 from czsc.objects import Freq
 from .sig import same_dir_counts, fast_slow_cross, count_last_same, create_single_signal
+from .plotly_plot import KlineChart
 
 
 def x_round(x: [float, int], digit=4):
