@@ -1,0 +1,8 @@
+version: '3.3'
+services:
+    douyin_shipin:
+        image: dockerqiqi/coin:v1
+        restart: always
+        build:
+            context: .
+            dockerfile: Dockerfile
