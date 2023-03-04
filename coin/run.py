@@ -44,7 +44,7 @@ def run():
                 collect_name = symbol + "_" + v.value
 
                 doucments = binance_mongo.find_all_sort_by__id(collect_name,-1)
-                if doucments and len(doucments) >0  :
+                if doucments and len(doucments) > 0  :
                     start_time = doucments[0].get("_id")
 
                 # 小于这个时间就继续获取数据

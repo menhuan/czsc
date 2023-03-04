@@ -209,19 +209,20 @@ def check_signals_acc(bars: List[RawBar], get_signals: Callable, delta_days: int
 
     ct = CzscSignals(bg, get_signals)
     last_dt = {signal.key: ct.end_dt for signal in signals}
-
+    #buy_one_price = dict()
     for bar in tqdm(bars_right, desc=f'signals of {bg.symbol}'):
         ct.update_signals(bar)
 
         for signal in signals:
             html_path = os.path.join(home_path, signal.key)
             os.makedirs(html_path, exist_ok=True)
-            if bar.dt - last_dt[signal.key] > timedelta(minutes=delta_days*30) and signal.is_match(ct.s):
+            if bar.dt - last_dt[signal.key] > timedelta(minutes=delta_days * 60) and signal.is_match(ct.s):
                 file_html = f"{bar.symbol}_{signal.key}_{ct.s[signal.key]}_{bar.dt.strftime('%Y%m%d_%H%M')}.html"
                 file_html = os.path.join(html_path, file_html)
                 ct.take_snapshot(file_html)
                 last_dt[signal.key] = bar.dt
-
+                # 比如说这个指标的价格出现过一次后，后面就不需要再次出现，或者是出现对应的破坏指标，将这个指标破毁掉。
+                #buy_one_price[signal.key] =
 
 class CzscTrader(CzscSignals):
     """缠中说禅技术分析理论之多级别联立交易决策类（支持多策略独立执行）"""

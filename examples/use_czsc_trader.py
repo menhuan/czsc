@@ -73,7 +73,7 @@ if __name__ == '__main__':
     data_path = r'./cache_data1'
     dc = BiAnDataCache(data_path, sdt='2010-01-01', edt='20211209')
 
-    symbol = 'DYDXUSDT'
+    symbol = 'BNBUSDT'
     bars = dc.bian_btc_daily(ts_code=symbol, raw_bar=True, interval=BiFreq.F30.value, frep=Freq.F30)
 
     tactic = CzscStrategyCoin(symbol=symbol)

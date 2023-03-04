@@ -103,9 +103,12 @@ def zhen_cang_tu_po_V230204(c: CZSC, **kwargs) -> OrderedDict:
 def get_signals(cat: CzscSignals) -> OrderedDict:
     s = OrderedDict({"symbol": cat.symbol, "dt": cat.end_dt, "close": cat.latest_price})
     # 使用缓存来更新信号的方法
-    s.update(zhen_cang_tu_po_V230204(cat.kas[Freq.F30.value], di=1,n=10))
-    s.update(get_s_three_bi(cat.kas[Freq.F30.value], di=1))
-    s.update(get_s_three_bi(cat.kas[Freq.F30.value], di=1))
+    #s[Signal('30分钟_倒1笔_类买卖点_类一卖_任意_任意_0').key] = Signal('30分钟_倒1笔_类买卖点_类一卖_任意_任意_0').value
+    #s[Signal('30分钟_倒1笔_类买卖点_类二卖_任意_任意_0').key] = Signal('30分钟_倒1笔_类买卖点_类二卖_任意_任意_0').value
+    #s[Signal('30分钟_倒1笔_类买卖点_类三卖_任意_任意_0').key] = Signal('30分钟_倒1笔_类买卖点_类三卖_任意_任意_0').value
+    s[Signal('30分钟_倒1笔_类买卖点_类一买_任意_任意_0').key] = Signal('30分钟_倒1笔_类买卖点_类一买_任意_任意_0').value
+    #s[Signal('30分钟_倒1笔_类买卖点_类二买_任意_任意_0').key] = Signal('30分钟_倒1笔_类买卖点_类二买_任意_任意_0').value
+    #s[Signal('30分钟_倒1笔_类买卖点_类三买_任意_任意_0').key] = Signal('30分钟_倒1笔_类买卖点_类三买_任意_任意_0').value
     #s.update(zhen_cang_tu_po_V230204(cat.kas['5分钟'], di=1,n=10))
     #s.update(zhen_cang_tu_po_V230204(cat.kas['30分钟'], di=1,n=10))
     return s
@@ -127,7 +130,7 @@ if __name__ == '__main__':
     for symbol in ["BTCUSDT"]:
         dc = BiAnDataCache(data_path, sdt='2010-01-01', edt='20211209')
         bars = dc.bian_btc_daily(ts_code=symbol, raw_bar=True, interval=BiFreq.F30.value, frep=Freq.F30)
-        check_signals_acc(bars,get_signals=get_signals,strategy=trader_strategy_base)
+        check_signals_acc(bars,get_signals=get_signals,delta_days=10,strategy=trader_strategy_base)
 # 查看指定信号的隔日快照
     # signals = [
     #     Signal('5分钟_N10M3_震仓突破_向上_任意_任意_0'),

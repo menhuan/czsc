@@ -334,15 +334,21 @@ class CzscStrategyCoin(CzscStrategyBase):
 
     @property
     def __shared_exits(self):
+        # 一卖平多 三买平掉开的空单
         return [
             Event(name='平多', operate=Operate.LE, factors=[
                 Factor(name=f"{Freq.F30.value}一卖", signals_all=[
-                    Signal(f"{Freq.F30.value}_D5B_SELL1_一卖_7笔_任意_0"),
-                ])
+                    Signal(f"{Freq.F30.value}_倒{1}笔_类买卖点_类一卖_任意_任意_0"),
+
+                ],signals_any=[
+                    Signal(f"{Freq.F30.value}_倒{1}笔_类买卖点_类二卖_任意_任意_0"),
+                    Signal(f"{Freq.F30.value}_倒{1}笔_类买卖点_类三卖_任意_任意_0"),
+                ]
+                       )
             ]),
             Event(name='平空', operate=Operate.SE, factors=[
-                Factor(name=f"{Freq.F30.value}一买", signals_all=[
-                    Signal(F"{Freq.F30.value}_D5B_BUY1_一买_5笔_任意_0"),
+                Factor(name=f"{Freq.F30.value}三买", signals_all=[
+                    Signal(F"{Freq.F30.value}_倒{1}笔_类买卖点_类三买_任意_任意_0"),
                 ])
             ]),
         ]
@@ -382,7 +388,6 @@ class CzscStrategyCoin(CzscStrategyBase):
                     _dt = op['dt'].strftime('%Y%m%d#%H%M')
                     file_name = f"{op['op'].value}_{_dt}_{op['bid']}_{x_round(op['price'], 2)}_{op['op_desc']}.html"
                     file_html = os.path.join(pos_path, file_name)
-                    logger.info(f"输出的file_html文件地址是:{file_html}")
                     trader.take_snapshot(file_html)
                     logger.info(f'{file_html}')
         trader.take_snapshot("temp_czsc_advanced_trader.html")
