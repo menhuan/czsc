@@ -26,7 +26,7 @@ COPY . /app
 RUN /usr/local/bin/pip install -r /app/requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 ENV TZ=Asia/Shanghai
-ENV PYTHONPATH=/app/
+ENV PYTHONPATH=$PYTHONPATH:/app
 
 CMD ["python", "coin/run.py"]
 
