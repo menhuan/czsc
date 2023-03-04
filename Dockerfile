@@ -28,5 +28,5 @@ RUN /usr/local/bin/pip install -r /app/requirements.txt -i https://pypi.tuna.tsi
 ENV TZ=Asia/Shanghai
 ENV PYTHONPATH=/app/
 
-CMD ["python", "/app/coin/run.py"]
+CMD ["python", "coin/run.py"]
 
