@@ -49,7 +49,7 @@ def run():
         for _,v in BiFreq.__members__.items():
             data_count = 0
             start_time = os.getenv("collect_time", 1512057600000)
-            if v not in (BiFreq.M ,BiFreq.W  ,BiFreq.F1):
+            if v not in (BiFreq.M ,BiFreq.W  ,BiFreq.F1,BiFreq.F5,BiFreq.F15):
                 collect_name = symbol + "_" + v.value
 
                 doucments = binance_mongo.find_all_sort_by__id(collect_name,-1)
@@ -105,7 +105,8 @@ def notice():
         check_signals_acc(bars,get_signals=get_signals,time_delay=24*60*60,strategy=trader_strategy_base)
 
 if __name__ == '__main__':
-    t1 = threading.Thread(target=run)
-    t2 = threading.Thread(target=notice)
-    t1.start()
-    t2.start()
+    # t1 = threading.Thread(target=run)
+    # t2 = threading.Thread(target=notice)
+    # t1.start()
+    # t2.start()
+    run()
