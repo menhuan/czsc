@@ -65,7 +65,7 @@ def run():
 
                     for bar in bars:
                         update = {"$set": bar}
-                        document = binance_mongo.find_one_and_update(collect_name,{"_id": bar.get("_id")},update)
+                        document = binance_mongo.find_one_and_update(collect_name,{"_id": bar.get("_id")},update,upsert=True)
                         if document:
                             logger.error(f"更新和查询数据失败，请检查:{update}")
                     data_count = data_count + len(bars)
