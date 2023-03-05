@@ -7,6 +7,7 @@
 import os
 import time
 from collections import OrderedDict
+import threading
 
 from loguru import logger
 from czsc.objects import  BiFreq ,Freq
@@ -104,5 +105,7 @@ def notice():
         check_signals_acc(bars,get_signals=get_signals,time_delay=24*60*60,strategy=trader_strategy_base)
 
 if __name__ == '__main__':
-    #run()
-    notice()
+    t1 = threading.Thread(target=run)
+    t2 = threading.Thread(target=notice)
+    t1.start()
+    t2.start()
