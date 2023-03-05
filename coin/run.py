@@ -6,11 +6,19 @@
 """
 import os
 import time
+from collections import OrderedDict
+
 from loguru import logger
-from czsc.objects import  BiFreq
+from czsc.objects import  BiFreq ,Freq
 from bian_coin import kline
+from czsc.data.coin_cache import BiAnDataCache
 from db.mongo_db import binance_mongo
 import json
+
+from czsc.traders import check_signals_acc
+from czsc.traders.base import CzscTraderBICoin
+from czsc.signals.bxt import get_s_like_bs
+
 
 def get_time(freq):
     return {
@@ -29,8 +37,8 @@ def interval_time_end_time(start_time ,freq):
     end_time = start_time + 500 * get_time(freq)
     return end_time
 
+symbols = os.getenv("symbols" ,"BTCUSDT")
 def run():
-    symbols = os.getenv("symbols" ,"BTCUSDT")
     # 采集的开始时间，后面需要更换时间
     sleep_time = os.getenv("sleep_time" ,10)
     # 当前时间
@@ -67,10 +75,34 @@ def run():
                     logger.info(f"该币种{symbol}在该时间{v}数据爬取完毕,数据总条数是:{data_count}")
 
 
+def get_signals(cat: CzscTraderBICoin) -> OrderedDict:
+    s = OrderedDict({"symbol": cat.symbol, "dt": cat.end_dt, "close": cat.latest_price})
+    # 使用缓存来更新信号的方法
+    s.update(get_s_like_bs(cat.kas[Freq.F30.value], di=1))
+    #s.update(zhen_cang_tu_po_V230204(cat.kas['5分钟'], di=1,n=10))
+    #s.update(zhen_cang_tu_po_V230204(cat.kas['30分钟'], di=1,n=10))
+    return s
+
+def trader_strategy_base(symbol):
+    tactic = {
+        "symbol": symbol,
+        "base_freq": '15分钟',
+        "freqs": ['30分钟', '60分钟',Freq.F4H.value ,Freq.D.value,Freq.W.value],
+        "get_signals": get_signals,
+        "signals_n": 0,
+    }
+    return tactic
+
+
+
 def notice():
     # 通知，判断是否是要检测的新号，然后发送通知。
-    pass
-
+    for symbol in symbols.split(","):
+        data_path = os.path.join(f"./{symbol}")
+        dc = BiAnDataCache(data_path, sdt='2010-01-01', edt='20211209')
+        bars = dc.bian_btc_daily(ts_code=symbol, raw_bar=True, interval=BiFreq.F30.value, frep=Freq.F30)
+        check_signals_acc(bars,get_signals=get_signals,time_delay=24*60*60,strategy=trader_strategy_base)
 
 if __name__ == '__main__':
-    run()
+    #run()
+    notice()

@@ -157,6 +157,7 @@ class BarGenerator:
             "30分钟": ['60分钟','4小时', '日线', '周线', '月线', '季线', '年线'],
             "60分钟": ['4小时','日线', '周线', '月线', '季线', '年线'],
             "4小时": ['日线', '周线', '月线', '季线', '年线'],
+            "日线" : [ '周线', '月线', '季线', '年线'],
         }
         assert self.base_freq in self.freq_map.keys()
         assert self.base_freq in self.base_freq_constraint.keys()

@@ -102,6 +102,7 @@ def zhen_cang_tu_po_V230204(c: CZSC, **kwargs) -> OrderedDict:
 
 def get_signals(cat: CzscSignals) -> OrderedDict:
     s = OrderedDict({"symbol": cat.symbol, "dt": cat.end_dt, "close": cat.latest_price})
+
     # 使用缓存来更新信号的方法
     #s[Signal('30分钟_倒1笔_类买卖点_类一卖_任意_任意_0').key] = Signal('30分钟_倒1笔_类买卖点_类一卖_任意_任意_0').value
     #s[Signal('30分钟_倒1笔_类买卖点_类二卖_任意_任意_0').key] = Signal('30分钟_倒1笔_类买卖点_类二卖_任意_任意_0').value
