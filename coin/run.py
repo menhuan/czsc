@@ -103,10 +103,11 @@ def notice():
         dc = BiAnDataCache(data_path, sdt='2010-01-01', edt='20211209')
         bars = dc.bian_btc_daily(ts_code=symbol, raw_bar=True, interval=BiFreq.F30.value, frep=Freq.F30)
         check_signals_acc(bars,get_signals=get_signals,time_delay=24*60*60,strategy=trader_strategy_base)
+    logger.info("睡眠5分钟")
+    time.sleep(os.getenv("symbol_sleep_time", 5*60*60))
 
 if __name__ == '__main__':
-    # t1 = threading.Thread(target=run)
-    # t2 = threading.Thread(target=notice)
-    # t1.start()
-    # t2.start()
-    run()
+    t1 = threading.Thread(target=run)
+    t2 = threading.Thread(target=notice)
+    t1.start()
+    t2.start()
