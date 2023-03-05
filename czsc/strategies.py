@@ -18,7 +18,7 @@ from czsc.objects import RawBar, List, Operate, Signal, Factor, Event, Position,
 from collections import OrderedDict
 from czsc.traders.base import CzscTrader
 from czsc.utils import x_round, freqs_sorted, BarGenerator, dill_dump
-from signals.bxt import get_s_like_bs
+from czsc.signals.bxt import get_s_like_bs
 
 
 class CzscStrategyBase(ABC):

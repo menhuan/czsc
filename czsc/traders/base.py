@@ -224,6 +224,8 @@ def check_signals_acc(bars: List[RawBar], get_signals: Callable, delta_days: int
                 last_dt[signal.key] = bar.dt
                 # 比如说这个指标的价格出现过一次后，后面就不需要再次出现，或者是出现对应的破坏指标，将这个指标破毁掉。
                 #buy_one_price[signal.key] =
+def check_signals_acc(bars: List[RawBar], get_signals: Callable, delta_days: int = 5, **kwargs) -> None:
+    pass
 
 class CzscTrader(CzscSignals):
     """缠中说禅技术分析理论之多级别联立交易决策类（支持多策略独立执行）"""

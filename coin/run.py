@@ -67,7 +67,10 @@ def run():
                     logger.info(f"该币种{symbol}在该时间{v}数据爬取完毕,数据总条数是:{data_count}")
 
 
+def notice():
+    # 通知，判断是否是要检测的新号，然后发送通知。
     pass
+
 
 if __name__ == '__main__':
     run()
