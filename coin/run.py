@@ -40,40 +40,45 @@ def interval_time_end_time(start_time ,freq):
 
 symbols = os.getenv("symbols" ,"BTCUSDT")
 def run():
-    # 采集的开始时间，后面需要更换时间
-    sleep_time = os.getenv("sleep_time" ,10)
-    # 当前时间
-    end_time = time.time() * 1000
-    # 这个时间戳下面的才进行数据采集
-    for symbol in symbols.split(","):
-        for _,v in BiFreq.__members__.items():
-            data_count = 0
-            start_time = os.getenv("collect_time", 1512057600000)
-            if v not in (BiFreq.M ,BiFreq.W  ,BiFreq.F1,BiFreq.F5,BiFreq.F15):
-                collect_name = symbol + "_" + v.value
+    while True:
+        try:
+            # 采集的开始时间，后面需要更换时间
+            sleep_time = os.getenv("sleep_time" ,10)
+            # 当前时间
+            end_time = time.time() * 1000
+            # 这个时间戳下面的才进行数据采集
+            for symbol in symbols.split(","):
+                for _,v in BiFreq.__members__.items():
+                    data_count = 0
+                    start_time = os.getenv("collect_time", 1512057600000)
+                    if v not in (BiFreq.M ,BiFreq.W  ,BiFreq.F1,BiFreq.F5,BiFreq.F15):
+                        collect_name = symbol + "_" + v.value
 
-                doucments = binance_mongo.find_all_sort_by__id(collect_name,-1)
-                if doucments and len(doucments) > 0  :
-                    start_time = doucments[0].get("_id")
+                        doucments = binance_mongo.find_all_sort_by__id(collect_name,-1)
+                        if doucments and len(doucments) > 0  :
+                            start_time = doucments[0].get("_id")
 
-                # 小于这个时间就继续获取数据
-                # 获取开始时间
-                while start_time < end_time:
-                    interval_time = interval_time_end_time(start_time, v)
-                    # 根据时间戳获取数据
-                    bars = kline(symbol ,interval=v.value,startTime=start_time ,endTime=interval_time)
+                        # 小于这个时间就继续获取数据
+                        # 获取开始时间
+                        while start_time < end_time:
+                            interval_time = interval_time_end_time(start_time, v)
+                            # 根据时间戳获取数据
+                            bars = kline(symbol ,interval=v.value,startTime=start_time ,endTime=interval_time)
 
-                    for bar in bars:
-                        update = {"$set": bar}
-                        document = binance_mongo.find_one_and_update(collect_name,{"_id": bar.get("_id")},update,upsert=True)
-                        if document:
-                            logger.error(f"更新和查询数据失败，请检查:{update}")
-                    data_count = data_count + len(bars)
-                    time.sleep(sleep_time)
-                    start_time = interval_time
-                    logger.info(f"更新数据进行到{data_count},当前时间是:{start_time},结束时间是：{end_time}")
-                else:
-                    logger.info(f"该币种{symbol}在该时间{v}数据爬取完毕,数据总条数是:{data_count}")
+                            for bar in bars:
+                                update = {"$set": bar}
+                                document = binance_mongo.find_one_and_update(collect_name,{"_id": bar.get("_id")},update,upsert=True)
+                                if document:
+                                    logger.error(f"更新和查询数据失败，请检查:{update}")
+                            data_count = data_count + len(bars)
+                            time.sleep(sleep_time)
+                            start_time = interval_time
+                            logger.info(f"更新数据进行到{data_count},当前时间是:{start_time},结束时间是：{end_time}")
+                        else:
+                            logger.info(f"该币种{symbol}在该时间{v}数据爬取完毕,数据总条数是:{data_count}")
+        finally:
+            time.sleep(sleep_time)
+            logger.info("重新访问新的一次数据")
 
 
 def get_signals(cat: CzscTraderBICoin) -> OrderedDict:
@@ -97,14 +102,18 @@ def trader_strategy_base(symbol):
 
 
 def notice():
-    # 通知，判断是否是要检测的新号，然后发送通知。
-    for symbol in symbols.split(","):
-        data_path = os.path.join(f"./{symbol}")
-        dc = BiAnDataCache(data_path, sdt='2010-01-01', edt='20211209')
-        bars = dc.bian_btc_daily(ts_code=symbol, raw_bar=True, interval=BiFreq.F30.value, frep=Freq.F30)
-        check_signals_acc(bars,get_signals=get_signals,time_delay=24*60*60,strategy=trader_strategy_base)
-    logger.info("睡眠5分钟")
-    time.sleep(os.getenv("symbol_sleep_time", 5*60*60))
+    while True:
+        try:
+            # 通知，判断是否是要检测的新号，然后发送通知。
+            for symbol in symbols.split(","):
+                data_path = os.path.join(f"./{symbol}")
+                dc = BiAnDataCache(data_path, sdt='2010-01-01', edt='20211209')
+                bars = dc.bian_btc_daily(ts_code=symbol, raw_bar=True, interval=BiFreq.F30.value, frep=Freq.F30)
+                check_signals_acc(bars,get_signals=get_signals,time_delay=24*60*60,strategy=trader_strategy_base)
+        finally:
+            logger.info("睡眠5分钟")
+            time.sleep(os.getenv("symbol_sleep_time", 5*60*60))
+
 
 if __name__ == '__main__':
     t1 = threading.Thread(target=run)
