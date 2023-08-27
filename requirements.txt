@@ -1,12 +1,10 @@
 requests>=2.24.0
-pyecharts>=1.9.0
+pyecharts>=1.9.1
 tqdm
 pandas>=1.1.0
 numpy>=1.16.5
-transitions
 tushare
 python-docx>=0.8.11
-transitions
 matplotlib
 seaborn
 Deprecated>=1.2.12
@@ -19,11 +17,17 @@ click
 pytest
 tenacity>=8.1.0
 requests-toolbelt>=0.10.1
+plotly>=5.11.0
+parse>=1.19.0
+
+
+
+
 
 
 
 #我自己额外增加
 pymongo
 pytz
-plotly
 ######结束
+

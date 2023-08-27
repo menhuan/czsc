@@ -7,35 +7,29 @@
 [![PyPI](https://img.shields.io/pypi/v/czsc.svg)](https://pypi.org/project/czsc/)
 [![Documentation Status](https://readthedocs.org/projects/czsc/badge/?version=latest)](https://czsc.readthedocs.io/en/latest/?badge=latest)
 
-**[API文档](https://czsc.readthedocs.io/en/latest/modules.html)**
+**[API文档](https://czsc.readthedocs.io/en/latest/modules.html)** | 
+**[项目文档](https://s0cqcxuy3p.feishu.cn/wiki/wikcn3gB1MKl3ClpLnboHM1QgKf)** | 
+**[投研数据共享](https://s0cqcxuy3p.feishu.cn/wiki/wikcnzuPawXtBB7Cj7mqlYZxpDh)** | 
+**[信号函数编写规范](https://s0cqcxuy3p.feishu.cn/wiki/wikcnCFLLTNGbr2THqo7KtWfBkd)**
 
 >源于[缠中说缠博客](http://blog.sina.com.cn/chzhshch)，原始博客中的内容不太完整，且没有评论，以下是网友整理的原文备份
-* 备份网址1：https://chzhshch.blog
-* 备份网址2：http://www.fxgan.com
+* 备份网址1：http://www.fxgan.com
 
 >**假如没有了分型、笔、线段，缠论还是缠论吗？如果你的答案是“是”，这个项目是为你准备的。本项目旨在提供一个符合缠中说禅思维方式的程序化交易工具。**
 
-```
-主题: CZSC0.8.26 版本介绍 
-日期: 2022-05-22 19:53:55
-录制文件：https://meeting.tencent.com/v2/cloud-record/share?id=a361ce70-45e7-4499-b577-681e1dc01401&from=3
-访问密码：xy4a
-```
+* 已经开始用czsc库进行量化研究的朋友，欢迎加入飞书群，快点击 https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=a51qf1f4-8aee-47a5-8dca-e01d076b4baf 加入吧！
+* [B站视频教程合集（持续更新...）](https://space.bilibili.com/243682308/channel/series)
 
-```
-主题: 信号计算函数的一些编写案例介绍
-日期: 2022-07-03 19:55:37
-录制文件：https://meeting.tencent.com/v2/cloud-record/share?id=dbfa7717-d63c-47dd-a5b6-b7b07afd58f5&from=3
-访问密码：mHZA
-```
 
 ## 项目贡献
 
+* [择时策略研究框架](https://s0cqcxuy3p.feishu.cn/wiki/wikcnhizrtIOQakwVcZLMKJNaib)
 * 缠论的 `分型、笔` 的自动识别，详见 `czsc/analyze.py`
 * 定义并实现 `信号-因子-事件-交易` 量化交易逻辑体系，因子是信号的线性组合，事件是因子的同类合并，详见 `czsc/objects.py`
-* 定义并实现了若干种基于笔的信号，详见 `czsc/signals.py`
-* 缠论多级别联立决策分析交易，详见 `czsc/traders/advanced.py`
+* 定义并实现了若干信号函数，详见 `czsc/signals`
+* 缠论多级别联立决策分析交易，详见 `CzscTrader`
 * 基于 Tushare 数据的择时、选股策略回测研究流程
+
 
 
 ## 安装使用
@@ -76,13 +70,9 @@ pip install czsc -U -i https://pypi.python.org/simple
 >案例中主要使用了 Tushare 的数据，开通相应的数据权限可以[点击联系](https://tushare.pro/document/2?doc_id=244)，备注：**CZSC用户**，1500元可以开通CZSC项目目前用到的全部数据权限。
 >掘金终端主要用于交易策略的实盘跟踪，[点击了解](https://www.myquant.cn/)。
 
-* `examples/ts_fast_backtest.py` 股票市场择时策略快速回测
 * `examples/ts_plates_sensor.py` 同花顺概念板块轮动策略回测
 * `examples/ts_check_signal_acc.py` 验证信号计算的准确性，信号是否符合定义
 * `examples/ts_stocks_sensors.py` 日线选股策略回测
-* `examples/gm_backtest.py` 使用掘金终端进行缠论策略回测
-* `examples/gm_realtime.py` 使用掘金终端进行策略实盘、仿真
-* `examples/gm_check_point.py` 使用掘金终端的数据进行买卖点验证
 
 
 ## 原文整理
@@ -112,4 +102,4 @@ pip install czsc -U -i https://pypi.python.org/simple
   - 对于刚接触缠论和量化交易的新朋友，给出一些力所能及的帮助。
 > 详情点击：https://s0cqcxuy3p.feishu.cn/wiki/wikcnwXSk9mWnki1b6URPhLA2Hc
 > 
-> 加入知识星球有人工审核。**申请加入请求提交后**，加微信 `zengbin93`，备注【CZSC小圈子】
+> **加入知识星球后**，请加微信 `zengbin93`，备注【CZSC小圈子】
