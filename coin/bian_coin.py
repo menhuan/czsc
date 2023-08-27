@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import List
 
 import requests
@@ -9,7 +10,16 @@ import pandas as pd
 """
 startTime: 1674802800000，时间戳
 """
-
+class BIFreq(Enum):
+    F1 = "1m"
+    F5 = "5m"
+    F15 = "15m"
+    F30 = "30m"
+    F60 = "1h"
+    F4H = "4h"
+    D = "1d"
+    W = "1w"
+    M = "1M"
 
 def kline(symbol: str = "BTCUSDT",
           interval: str = BIFreq.F5.value,
