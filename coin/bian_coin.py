@@ -3,7 +3,6 @@ from typing import List
 
 import requests
 
-from czsc.objects import BIFreq
 from loguru import logger
 import pandas as pd
 
