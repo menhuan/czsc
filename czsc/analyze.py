@@ -11,7 +11,7 @@ import numpy as np
 from loguru import logger
 from typing import List, Callable
 from collections import OrderedDict
-from czsc.enum import Mark, Direction
+from czsc.enums import Mark, Direction
 from czsc.objects import BI, FX, RawBar, NewBar
 from czsc.utils.echarts_plot import kline_pro
 from czsc import envs

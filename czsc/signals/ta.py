@@ -13,7 +13,7 @@ from deprecated import deprecated
 
 from .. import analyze
 from ..objects import Signal
-from ..enum import Freq
+from ..enums import Freq
 try:
     from ..utils.ta1 import MACD, SMA
 except:

@@ -2,7 +2,7 @@ from typing import List
 
 import requests
 
-from czsc.objects import BiFreq
+from czsc.objects import BIFreq
 from loguru import logger
 import pandas as pd
 
@@ -12,7 +12,7 @@ startTime: 1674802800000，时间戳
 
 
 def kline(symbol: str = "BTCUSDT",
-          interval: str = BiFreq.F5.value,
+          interval: str = BIFreq.F5.value,
           startTime: int = None,
           endTime: int = None,
           limit: int = 1000) -> List[dict]:
