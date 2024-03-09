@@ -3,12 +3,15 @@ from influxdb_client import InfluxDBClient
 from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
 
-client = InfluxDBClient(url='http://127.0.0.1:8086', username='admin', password='password',org="mydb")
 import random
 from datetime import datetime, timedelta
 from typing import List, Dict
 from influxdb_client import InfluxDBClient, Bucket, Organization
 from influxdb_client.client.organizations_api import OrganizationsApi
+from influxdb_client.client.authorizations_api import AuthorizationsApi
+
+client = InfluxDBClient(url='http://43.155.166.165:8086', token='testruiqi', org="mydb")
+
 
 # 查询最新数据
 def query_latest_data(database, measurement):
