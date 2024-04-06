@@ -7,10 +7,12 @@ import random
 from datetime import datetime, timedelta
 from typing import List, Dict
 from influxdb_client import InfluxDBClient, Bucket, Organization
-from influxdb_client.client.organizations_api import OrganizationsApi
-from influxdb_client.client.authorizations_api import AuthorizationsApi
+from dotenv import load_dotenv
+import os 
+load_dotenv()
+influxdb_host = os.getenv("INFLUXDB_HOST", "localhost")
 
-client = InfluxDBClient(url='http://43.155.166.165:8086', token='testruiqi', org="mydb")
+client = InfluxDBClient(url=f'http://{influxdb_host}:8086', token=os.environ.get('INFLUXDB_TOKEN'), org="mydb")
 
 
 # 查询最新数据
@@ -26,18 +28,22 @@ def query_latest_data(database, measurement):
     print(f"输出结果\n:{result}")
     return result
 
+
+
 # 插入数据
 def insert_data_into_influxdb(database, measurement, data_list: List[dict]):
     write_api = client.write_api(write_options=SYNCHRONOUS)
     points =  [
         Point(measurement)
-            .time(data["time"])
-            .field("field1", data["field1"])
-            .field("field2", data["field2"])
+            .time(data["timepoints"])
+            .field(**data)
         for data in data_list
     ]
-    write_api.write(database,measurement, data_list)
+    write_api.write(database,measurement, points)
     print("运行结束")
+
+def insert_coin_data_into_influxdb(measurement, data_list: List[dict]):
+   insert_data_into_influxdb("binance",measurement, data_list)
 
 def generate_data(start_time: datetime, end_time: datetime, num_points: int) -> List[Dict[str, any]]:
     time_step = (end_time - start_time) / num_points

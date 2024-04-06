@@ -9,19 +9,20 @@ import threading
 
 from loguru import logger
 from bian_coin import kline, BIFreq
-from db.mongo_db import binance_mongo
 import datetime
 
+from db import utils
+from db import redis_util as redis
 
 def get_time(freq):
     return {
         BIFreq.F1: 60 * 1000,
-        BIFreq.F5: 5 * 60 * 1000,
-        BIFreq.F15: 15 * 60 * 1000,
-        BIFreq.F30: 30 * 60 * 1000,
-        BIFreq.F60: 60 * 60 * 1000,
-        BIFreq.F4H: 4 * 60 * 60 * 1000,
-        BIFreq.D: 24 * 60 * 60 * 1000,
+        #BIFreq.F5: 5 * 60 * 1000,
+        #BIFreq.F15: 15 * 60 * 1000,
+        #BIFreq.F30: 30 * 60 * 1000,
+        #BIFreq.F60: 60 * 60 * 1000,
+        #BIFreq.F4H: 4 * 60 * 60 * 1000,
+        #BIFreq.D: 24 * 60 * 60 * 1000,
     }.get(freq)
 
 
@@ -47,33 +48,38 @@ def collect_coin():
             sleep_time = os.getenv("sleep_time", 10)
             # 当前时间
             end_time = time.time() * 1000
+            start_time = os.getenv("collect_time", 1512057600000)
+
             # 这个时间戳下面的才进行数据采集
             for symbol in symbols.split(","):
                 for _, v in BIFreq.__members__.items():
                     data_count = 0
-                    start_time = os.getenv("collect_time", 1512057600000)
-                    if v not in (BIFreq.M, BIFreq.W, BIFreq.F1, BIFreq.F5, BIFreq.F15):
+                    if v not in (BIFreq.M, BIFreq.W, BIFreq.F5, BIFreq.F15):
                         collect_name = symbol + "_" + v.value
 
-                        doucments = binance_mongo.find_all_sort_by__id(collect_name, -1)
-                        if doucments and len(doucments) > 0:
-                            start_time = doucments[0].get("_id")
+                        doucments = utils.get_last_time('redis',collect_name)
+                        if doucments is not None:
+                            """
+                            如果有数据就从这个时间开始
+                            存储的是时间戳
+                            """
+                            start_time = doucments 
                             logger.info(f"当前开始时间是{start_time}")
                             logger.info(f"切换数据当前开始的时间是:{format_time(start_time)}")
 
                         # 小于这个时间就继续获取数据
                         # 获取开始时间
-                        while start_time < end_time:
+                        while int(start_time) < int(end_time):
                             try:
-                                interval_time = interval_time_end_time(start_time, v)
+                                interval_time = interval_time_end_time(int(start_time), v)
 
                                 # 根据时间戳获取数据
-                                bars = kline(symbol, interval=v.value, startTime=start_time, endTime=interval_time)
-
-                                for bar in bars:
-                                    update = {"$set": bar}
-                                    document = binance_mongo.find_one_and_update(collect_name, {"_id": bar.get("_id")},
-                                                                                 update, upsert=True)
+                                bars = kline(symbol, interval=v.value, startTime=int(start_time), endTime=interval_time)
+                                
+                                #for bar in bars:
+                                    #update = {"$set": bar}
+                                    #document = binance_mongo.find_one_and_update(collect_name, {"_id": bar.get("_id")},
+                                    #                                            update, upsert=True)
                                 data_count = data_count + len(bars)
                                 time.sleep(sleep_time)
                                 start_time = interval_time
@@ -83,6 +89,8 @@ def collect_coin():
                         else:
                             logger.info(f"该币种{symbol}在该时间{v}数据爬取完毕,数据总条数是:{data_count}")
         finally:
+            if collect_name is not None:
+                redis.set_value(collect_name, start_time)
             time.sleep(sleep_time)
             logger.info("重新访问新的一次数据")
 

@@ -23,7 +23,7 @@ setup(
     license="Apache Software License",
 
     url="https://github.com/waditu/czsc",
-    packages=find_packages(exclude=['test', 'images', 'docs', 'examples', 'hist']),
+    packages=find_packages(exclude=['test', 'images', 'docs', 'examples', 'hist','db']),
     include_package_data=True,
     install_requires=install_requires,
     package_data={'': ['data/*.csv']},

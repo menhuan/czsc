@@ -32,7 +32,7 @@ def binance_kline(request):
 
 
 def kline(symbol: str = "BTCUSDT",
-          interval: str = BIFreq.F5.value,
+          interval: str = BIFreq.F1.value,
           startTime: int = None,
           endTime: int = None,
           limit: int = 1000) -> List[dict]:

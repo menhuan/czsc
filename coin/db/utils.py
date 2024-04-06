@@ -1,0 +1,32 @@
+import datetime
+
+import db.redis_util as redis
+import db.influxdb as influxdb
+"""
+根据不同的action，返回想要的时间
+"""
+def get_last_time(action,key=None):
+    current_time = datetime.datetime.now()
+    if action == 'redis':
+        return redis.get_value(key)
+    elif action == 'mongo':
+        return current_time
+    else:
+        raise ValueError(f'Invalid action:{action}')
+
+def save_last_time(action,key,value):
+    if action == 'redis':
+        return redis.set_value(key,value)
+    elif action == 'mongo':
+        return value
+    else:
+        raise ValueError('Invalid action')
+
+
+def save_kline_to_strogem(action,kline):
+    if action == 'influxdb':
+        influxdb.insert_coin_data_into_influxdb(kline.get("symbol"),kline)
+    pass
+
+# Example usage
+get_last_time('redis',"test_key")

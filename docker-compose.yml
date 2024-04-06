@@ -20,3 +20,8 @@ services:
       - INFLUXDB_ADMIN_PASSWORD=password
       - INFLUXDB_DB=mydb
       - INFLUXDB_ADMIN_TOKEN=testruiqi
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - 6379:6379

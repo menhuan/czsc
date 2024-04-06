@@ -18,4 +18,5 @@
     ],
     "typescript.locale": "zh-CN",
     "python.analysis.typeCheckingMode": "basic",
+    "python.envFile": "/workspaces/czsc/.env",
 }
