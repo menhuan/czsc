@@ -23,10 +23,11 @@ def save_last_time(action,key,value):
         raise ValueError('Invalid action')
 
 
-def save_kline_to_strogem(action,kline):
+def save_kline_to_strogem(action,kline,symbol):
     if action == 'influxdb':
-        influxdb.insert_coin_data_into_influxdb(kline.get("symbol"),kline)
-    pass
+        influxdb.insert_coin_data_into_influxdb(symbol,kline)
+    else:
+        raise ValueError(f'Invalid action:{action}')
 
 # Example usage
 get_last_time('redis',"test_key")

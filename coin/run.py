@@ -13,6 +13,7 @@ import datetime
 
 from db import utils
 from db import redis_util as redis
+import traceback 
 
 def get_time(freq):
     return {
@@ -65,7 +66,7 @@ def collect_coin():
                             """
                             start_time = doucments 
                             logger.info(f"当前开始时间是{start_time}")
-                            logger.info(f"切换数据当前开始的时间是:{format_time(start_time)}")
+                            logger.info(f"切换数据当前开始的时间是:{(start_time)}")
 
                         # 小于这个时间就继续获取数据
                         # 获取开始时间
@@ -79,12 +80,16 @@ def collect_coin():
                                 #for bar in bars:
                                     #update = {"$set": bar}
                                     #document = binance_mongo.find_one_and_update(collect_name, {"_id": bar.get("_id")},
-                                    #                                            update, upsert=True)
+                                    #         
+                                    #                                    update, upsert=True)
+                                logger.info(f"获取到的数据是:{bars[0]}")
+                                utils.save_kline_to_strogem('influxdb',bars,symbol)
                                 data_count = data_count + len(bars)
                                 time.sleep(sleep_time)
                                 start_time = interval_time
                                 logger.info(f"更新数据进行到{data_count},当前时间是:{ format_time(start_time) },结束时间是：{format_time(end_time)}")
                             except Exception as e:
+                                traceback.print_exc()
                                 logger.error(f"获取k线异常,exception:{e}")
                         else:
                             logger.info(f"该币种{symbol}在该时间{v}数据爬取完毕,数据总条数是:{data_count}")

@@ -31,6 +31,48 @@ def binance_kline(request):
     
 
 
+
+"""
+[
+  [
+    1499040000000,      // k线开盘时间
+    "0.01634790",       // 开盘价
+    "0.80000000",       // 最高价
+    "0.01575800",       // 最低价
+    "0.01577100",       // 收盘价(当前K线未结束的即为最新价)
+    "148976.11427815",  // 成交量
+    1499644799999,      // k线收盘时间
+    "2434.19055334",    // 成交额
+    308,                // 成交笔数
+    "1756.87402397",    // 主动买入成交量
+    "28.46694368",      // 主动买入成交额
+    "17928899.62484339" // 请忽略该参数
+  ]
+]
+"""
+def transfrom_bian_kline_to_all(binance_response: List) :
+    result = []
+    for index, content in enumerate(binance_response):
+        # 将每一根K线转换成 RawBar 对象
+        bar =  {
+                "start_date": str(content[0]),
+                "open_price": str(content[1]),
+                "high": str(content[2]),
+                "low": str(content[3]),
+                "close": str(content[4]),
+                "volume": str(content[5]),
+                "end_time": str(content[6]),
+                "amount": str(content[7]),
+                "num_trade": str(content[8]),
+                "buy_volume": str(content[9]),
+                "buy_amount": str(content[10]),
+                "timepoints": content[0],
+            }
+        result.append(bar)
+
+    return result
+
+
 def kline(symbol: str = "BTCUSDT",
           interval: str = BIFreq.F1.value,
           startTime: int = None,
@@ -40,8 +82,7 @@ def kline(symbol: str = "BTCUSDT",
                       "endTime": endTime}
     logger.info(f"当前请求时间是参数是：{request_params}")
     binance_response = binance_kline(request_params)
-    logger.info(f"当前请求结果是：{binance_kline}")
-    return binance_response
+    return transfrom_bian_kline_to_all(binance_response=binance_response)
 
 def transfrom_bian_kline_to_df(binance_response: dict) :
     bars = []
