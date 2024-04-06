@@ -40,6 +40,7 @@ def kline(symbol: str = "BTCUSDT",
                       "endTime": endTime}
     logger.info(f"当前请求时间是参数是：{request_params}")
     binance_response = binance_kline(request_params)
+    logger.info(f"当前请求结果是：{binance_kline}")
     return binance_response
 
 def transfrom_bian_kline_to_df(binance_response: dict) :
