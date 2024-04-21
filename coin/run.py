@@ -14,16 +14,19 @@ import datetime
 from db import utils
 from db import redis_util as redis
 import traceback 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def get_time(freq):
     return {
         BIFreq.F1: 60 * 1000,
-        #BIFreq.F5: 5 * 60 * 1000,
-        #BIFreq.F15: 15 * 60 * 1000,
-        #BIFreq.F30: 30 * 60 * 1000,
-        #BIFreq.F60: 60 * 60 * 1000,
-        #BIFreq.F4H: 4 * 60 * 60 * 1000,
-        #BIFreq.D: 24 * 60 * 60 * 1000,
+        BIFreq.F5: 5 * 60 * 1000,
+        BIFreq.F15: 15 * 60 * 1000,
+        BIFreq.F30: 30 * 60 * 1000,
+        BIFreq.F60: 60 * 60 * 1000,
+        BIFreq.F4H: 4 * 60 * 60 * 1000,
+        BIFreq.D: 24 * 60 * 60 * 1000,
     }.get(freq)
 
 
@@ -35,7 +38,7 @@ def interval_time_end_time(start_time, freq):
 
 
 symbols = os.getenv("symbols", "BTCUSDT")
-
+time_query = os.environ.get("time_query","F1")
 #这里调用都是毫秒时间
 def format_time(time):
     return datetime.datetime.fromtimestamp(time/1000).strftime("%Y-%m-%d %H:%M:%S")
@@ -56,7 +59,8 @@ def collect_coin():
             for symbol in symbols.split(","):
                 for _, v in BIFreq.__members__.items():
                     data_count = 0
-                    if v not in (BIFreq.M, BIFreq.W, BIFreq.F5, BIFreq.F15):
+                    if v.name in time_query.split(","):
+
                         collect_name = symbol + "_" + v.value
 
                         doucments = utils.get_last_time('redis',collect_name)
@@ -78,11 +82,6 @@ def collect_coin():
                                 # 根据时间戳获取数据
                                 bars = kline(symbol, interval=v.value, startTime=int(start_time), endTime=interval_time)
                                 
-                                #for bar in bars:
-                                    #update = {"$set": bar}
-                                    #document = binance_mongo.find_one_and_update(collect_name, {"_id": bar.get("_id")},
-                                    #         
-                                    #                                    update, upsert=True)
                                 logger.info(f"获取到的数据是:{bars[0]}")
                                 utils.save_kline_to_strogem('influxdb',bars,symbol)
                                 data_count = data_count + len(bars)
@@ -91,7 +90,7 @@ def collect_coin():
                                 logger.info(f"更新数据进行到{data_count},当前时间是:{ format_time(start_time) },结束时间是：{format_time(end_time)}")
                             except Exception as e:
                                 traceback.print_exc()
-                                logger.error(f"获取k线异常,exception:{e}")
+                                logger.error(f"K线处理失败,exception:{e}")
                                 # 暂时先执行失败，后面再看看如何处理
                                 raise e 
                         else:

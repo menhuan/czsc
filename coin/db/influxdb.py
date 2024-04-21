@@ -10,6 +10,7 @@ from influxdb_client import InfluxDBClient, Bucket, Organization
 from dotenv import load_dotenv
 import os 
 from loguru import logger
+import json
 load_dotenv()
 influxdb_host = os.getenv("INFLUXDB_HOST", "localhost")
 token=os.environ.get('INFLUXDB_TOKEN')
@@ -46,16 +47,15 @@ def insert_data_into_influxdb(database, measurement, data_list: List[dict]):
         .field("low", data['low'])
         .field("close", data['close'])
         .field("volume", data['volume'])
-        .field("end_time", data['end_time'])
+        .field("st", data['st'])
         .field("amount", data['amount'])
         .field("num_trade", data['num_trade'])
         .field("buy_volume", data['buy_volume'])
         .field("buy_amount", data['buy_amount'])
         for data in data_list
     ]
-    
     response = write_api.write(database,"mydb", points)
-    print(f"运行结束:{response}")
+    logger.info(f"运行结束:{response}")
 
 def insert_coin_data_into_influxdb(measurement, data_list: List[dict]):
    insert_data_into_influxdb("binance",measurement, data_list)
