@@ -43,6 +43,7 @@ def format_time(time):
 
 def collect_coin():
     sleep_time = 1
+    start = True
     while True:
         try:
             # 采集的开始时间，后面需要更换时间
@@ -91,8 +92,13 @@ def collect_coin():
                             except Exception as e:
                                 traceback.print_exc()
                                 logger.error(f"获取k线异常,exception:{e}")
+                                # 暂时先执行失败，后面再看看如何处理
+                                raise e 
                         else:
                             logger.info(f"该币种{symbol}在该时间{v}数据爬取完毕,数据总条数是:{data_count}")
+        except Exception as e:
+            logger.error(f"获取k线异常,exception:{e}")
+            start = False
         finally:
             if collect_name is not None:
                 redis.set_value(collect_name, start_time)
