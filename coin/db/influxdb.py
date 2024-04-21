@@ -15,7 +15,7 @@ influxdb_host = os.getenv("INFLUXDB_HOST", "localhost")
 token=os.environ.get('INFLUXDB_TOKEN')
 logger.info(f"加载环境变量:{influxdb_host},{token}")
 
-client = InfluxDBClient(url=f'http://{influxdb_host}:8086', token="o9LmlNeJfeJnZT3pZJH3g1h_-vCbo3aibmo_zHPLb7iys8tHQ91PqxBo6FWW51ybxiKd8lBCkkqeSiTiXbfztg==", org="mydb")
+client = InfluxDBClient(url=f'{influxdb_host}', token=f"{token}==", org="mydb")
 
 
 # 查询最新数据
