@@ -55,17 +55,17 @@ def transfrom_bian_kline_to_all(binance_response: List) :
     for index, content in enumerate(binance_response):
         # 将每一根K线转换成 RawBar 对象
         bar =  {
-                "start_date": str(content[0]),
-                "open_price": str(content[1]),
-                "high": str(content[2]),
-                "low": str(content[3]),
-                "close": str(content[4]),
-                "volume": str(content[5]),
-                "end_time": str(content[6]),
-                "amount": str(content[7]),
-                "num_trade": str(content[8]),
-                "buy_volume": str(content[9]),
-                "buy_amount": str(content[10]),
+                "dt": str(content[0]),
+                "open": content[1],
+                "high": content[2],
+                "low": content[3],
+                "close": content[4],
+                "volume": content[5],
+                "end_time": content[6],
+                "amount": content[7],
+                "num_trade": content[8],
+                "buy_volume": content[9],
+                "buy_amount": content[10],
                 "timepoints": content[0],
             }
         result.append(bar)

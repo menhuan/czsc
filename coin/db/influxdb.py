@@ -9,10 +9,13 @@ from typing import List, Dict
 from influxdb_client import InfluxDBClient, Bucket, Organization
 from dotenv import load_dotenv
 import os 
+from loguru import logger
 load_dotenv()
 influxdb_host = os.getenv("INFLUXDB_HOST", "localhost")
+token=os.environ.get('INFLUXDB_TOKEN')
+logger.info(f"加载环境变量:{influxdb_host},{token}")
 
-client = InfluxDBClient(url=f'http://{influxdb_host}:8086', token=os.environ.get('INFLUXDB_TOKEN'), org="mydb")
+client = InfluxDBClient(url=f'http://{influxdb_host}:8086', token="o9LmlNeJfeJnZT3pZJH3g1h_-vCbo3aibmo_zHPLb7iys8tHQ91PqxBo6FWW51ybxiKd8lBCkkqeSiTiXbfztg==", org="mydb")
 
 
 # 查询最新数据
@@ -33,14 +36,26 @@ def query_latest_data(database, measurement):
 # 插入数据
 def insert_data_into_influxdb(database, measurement, data_list: List[dict]):
     write_api = client.write_api(write_options=SYNCHRONOUS)
-    points =  [
-        Point(measurement)
-            .time(data["timepoints"])
-            .field(**data)
+    points = [
+        Point
+        .measurement(measurement)
+        .time(data['timepoints'], WritePrecision.MS)
+        .field("dt", data['dt'])
+        .field("open", data['open'])
+        .field("high", data['high'])
+        .field("low", data['low'])
+        .field("close", data['close'])
+        .field("volume", data['volume'])
+        .field("end_time", data['end_time'])
+        .field("amount", data['amount'])
+        .field("num_trade", data['num_trade'])
+        .field("buy_volume", data['buy_volume'])
+        .field("buy_amount", data['buy_amount'])
         for data in data_list
     ]
-    write_api.write(database,measurement, points)
-    print("运行结束")
+    
+    response = write_api.write(database,"mydb", points)
+    print(f"运行结束:{response}")
 
 def insert_coin_data_into_influxdb(measurement, data_list: List[dict]):
    insert_data_into_influxdb("binance",measurement, data_list)
