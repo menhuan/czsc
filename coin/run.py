@@ -83,8 +83,8 @@ def collect_coin():
                             try:
                                 interval_time = interval_time_end_time(int(start_time), v)
 
-                                # 根据时间戳获取数据
-                                bars = kline(symbol, interval=v.value, startTime=int(start_time), endTime=interval_time)
+                                # 根据时间戳获取数据 
+                                bars = kline(symbol, interval=v.value, startTime=int(start_time), endTime=end_time)
                                 start_time = interval_time
                                 time.sleep(sleep_time)
                                 if(len(bars) == 0):
