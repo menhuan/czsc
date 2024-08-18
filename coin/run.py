@@ -108,8 +108,7 @@ def collect_coin():
         except Exception as e:
             logger.error(f"获取k线异常,exception:{e}")
         finally:
-            start = False
-            time.sleep(sleep_time)
+            time.sleep(60*60*12)
             logger.info("重新访问新的一次数据")
 
 
