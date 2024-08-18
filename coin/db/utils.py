@@ -2,6 +2,7 @@ import datetime
 
 import db.redis_util as redis
 import db.influxdb as influxdb
+from loguru import logger
 """
 根据不同的action，返回想要的时间
 """
@@ -16,7 +17,8 @@ def get_last_time(action,key=None):
 
 def save_last_time(action,key,value):
     if action == 'redis':
-        return redis.set_value(key,value)
+        result = redis.set_value(key,value)
+        logger.info(f'save_last_time:{result},value:{value}')
     elif action == 'mongo':
         return value
     else:

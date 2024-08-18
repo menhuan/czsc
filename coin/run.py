@@ -8,6 +8,7 @@ from collections import OrderedDict
 import threading
 
 from loguru import logger
+
 from bian_coin import kline, BIFreq
 import datetime
 
@@ -32,7 +33,7 @@ def get_time(freq):
 
 # 用来计算时间间隔，每次调用的时间间隔数据,按照一次500来计算吧
 def interval_time_end_time(start_time, freq):
-    interval_times = os.getenv("times_interval", 500)
+    interval_times = os.getenv("times_interval", 900)
     end_time = start_time + 500 * get_time(freq)
     return end_time
 
@@ -47,13 +48,13 @@ def format_time(time):
 def collect_coin():
     sleep_time = 1
     start = True
-    while True:
+    while start:
         try:
             # 采集的开始时间，后面需要更换时间
             sleep_time = os.getenv("sleep_time", 10)
             # 当前时间
             end_time = time.time() * 1000
-            start_time = os.getenv("collect_time", 1512057600000)
+            start_time = os.getenv("collect_time", 1518057600000)
 
             # 这个时间戳下面的才进行数据采集
             for symbol in symbols.split(","):
@@ -69,9 +70,12 @@ def collect_coin():
                             如果有数据就从这个时间开始
                             存储的是时间戳
                             """
-                            start_time = doucments 
-                            logger.info(f"当前开始时间是{start_time}")
-                            logger.info(f"切换数据当前开始的时间是:{(start_time)}")
+                            if int(start_time) < int(doucments):
+                                start_time = doucments 
+                                logger.info(f"当前开始时间是{start_time}")
+                                logger.info(f"切换数据当前开始的时间是:{(start_time)}")
+                            else:
+                                logger.info(f"当前开始时间是{start_time},不用切换时间,缓存时间是：{doucments}")
 
                         # 小于这个时间就继续获取数据
                         # 获取开始时间
@@ -81,13 +85,19 @@ def collect_coin():
 
                                 # 根据时间戳获取数据
                                 bars = kline(symbol, interval=v.value, startTime=int(start_time), endTime=interval_time)
-                                
-                                logger.info(f"获取到的数据是:{bars[0]}")
+                                start_time = interval_time
+                                time.sleep(sleep_time)
+                                if(len(bars) == 0):
+                                    if collect_name is not None:
+                                        utils.save_last_time("redis",collect_name, start_time)
+                                    logger.info(f"当前时间{start_time}没有获取到数据")
+                                    continue
+                                logger.info(f"当前数据条数是:{len(bars)} ")
                                 utils.save_kline_to_strogem('influxdb',bars,symbol)
                                 data_count = data_count + len(bars)
-                                time.sleep(sleep_time)
-                                start_time = interval_time
                                 logger.info(f"更新数据进行到{data_count},当前时间是:{ format_time(start_time) },结束时间是：{format_time(end_time)}")
+                                if collect_name is not None:
+                                    utils.save_last_time("redis",collect_name, start_time)
                             except Exception as e:
                                 traceback.print_exc()
                                 logger.error(f"K线处理失败,exception:{e}")
@@ -97,10 +107,8 @@ def collect_coin():
                             logger.info(f"该币种{symbol}在该时间{v}数据爬取完毕,数据总条数是:{data_count}")
         except Exception as e:
             logger.error(f"获取k线异常,exception:{e}")
-            start = False
         finally:
-            if collect_name is not None:
-                redis.set_value(collect_name, start_time)
+            start = False
             time.sleep(sleep_time)
             logger.info("重新访问新的一次数据")
 

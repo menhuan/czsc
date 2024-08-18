@@ -22,8 +22,15 @@ class BIFreq(Enum):
 
 def binance_kline(request):
     response = requests.get("https://api4.binance.com/api/v3/klines", request)
+    logger.info(f"响应结果 code是:{response.status_code}")
     if response.status_code == 200:
+        if(len(response.json()) == 0): 
+            logger.info(f"输出响应是:{response.text}")
         return response.json()
+    elif response.status_code == 429:
+        raise Exception("请求过多，被限制！")
+    elif response.status_code == 418:
+        raise Exception("IP被封禁！")
     else:
         raise Exception("请求变binance数据失败！")
     

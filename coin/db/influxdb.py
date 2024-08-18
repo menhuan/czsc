@@ -47,7 +47,7 @@ def insert_data_into_influxdb(database, measurement, data_list: List[dict]):
         .field("low", data['low'])
         .field("close", data['close'])
         .field("volume", data['volume'])
-        .field("st", data['st'])
+        .field("st", data['end_time'])
         .field("amount", data['amount'])
         .field("num_trade", data['num_trade'])
         .field("buy_volume", data['buy_volume'])
@@ -83,4 +83,4 @@ def create_dataexample():
 
 if __name__ == '__main__':
     #create_dataexample()
-    query_latest_data("mydb","my_measurement")
+    query_latest_data("binance","my_measurement")
