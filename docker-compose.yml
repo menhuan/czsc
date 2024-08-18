@@ -9,19 +9,19 @@ services:
     env_file:
       - .env
   influxdb:
-    image: influxdb
-    container_name: influxdb
-    ports:
+     image: influxdb
+     container_name: influxdb
+     ports:
       - 8086:8086
-    volumes:
+     volumes:
       - /var/lib/influxdb:/var/lib/influxdb
-    environment:
-      - INFLUXDB_ADMIN_USER=admin
-      - INFLUXDB_ADMIN_PASSWORD=password
-      - INFLUXDB_DB=mydb
-      - INFLUXDB_ADMIN_TOKEN=testruiqi
-  redis:
-    image: redis
-    container_name: redis
-    ports:
-      - 6379:6379
+     env_file:
+      - .env
+     environment:
+      
+   redis:
+     image: redis:6.0.9  # 确保使用具体的镜像版本
+     ports:
+      - "6379:6379"
+        #volumes:
+        #- redis_data:/data
