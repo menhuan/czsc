@@ -65,6 +65,7 @@ def collect_coin():
                         collect_name = symbol + "_" + v.value
 
                         doucments = utils.get_last_time('redis',collect_name)
+                        logger.info(f"当前开始时间是{start_time},缓存时间是：{doucments}")
                         if doucments is not None:
                             """
                             如果有数据就从这个时间开始
@@ -74,8 +75,6 @@ def collect_coin():
                                 start_time = doucments 
                                 logger.info(f"当前开始时间是{start_time}")
                                 logger.info(f"切换数据当前开始的时间是:{(start_time)}")
-                            else:
-                                logger.info(f"当前开始时间是{start_time},不用切换时间,缓存时间是：{doucments}")
 
                         # 小于这个时间就继续获取数据
                         # 获取开始时间
@@ -84,7 +83,7 @@ def collect_coin():
                                 interval_time = interval_time_end_time(int(start_time), v)
 
                                 # 根据时间戳获取数据 
-                                bars = kline(symbol, interval=v.value, startTime=int(start_time), endTime=end_time)
+                                bars = kline(symbol, interval=v.value, startTime=int(start_time), endTime=int(end_time))
                                 start_time = interval_time
                                 time.sleep(sleep_time)
                                 if(len(bars) == 0):
