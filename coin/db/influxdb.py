@@ -2,6 +2,7 @@ from typing import List
 from influxdb_client import InfluxDBClient
 from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
+from distutils.util import strtobool
 
 import random
 from datetime import datetime, timedelta
@@ -14,9 +15,13 @@ import json
 load_dotenv()
 influxdb_host = os.getenv("INFLUXDB_HOST", "localhost")
 token=os.environ.get('INFLUXDB_TOKEN')
-logger.info(f"加载环境变量:{influxdb_host},{token}")
+org=os.environ.get('org')
+INFLUXDB_V2_VERIFY_SSL=strtobool(os.environ.get('INFLUXDB_V2_VERIFY_SSL','False'))
+INFLUXDB_V2_TIMEOUT=int(os.environ.get('INFLUXDB_V2_TIMEOUT','30000'))
+logger.info(f"加载环境变量:{influxdb_host},{token},{INFLUXDB_V2_VERIFY_SSL}")
+DATABASE = os.getenv("DATABASE", "binance")
 
-client = InfluxDBClient(url=f'{influxdb_host}', token=f"{token}==", org="mydb")
+client = InfluxDBClient(url=f'{influxdb_host}', token=f"{token}", org=f"{org}",verify_ssl=INFLUXDB_V2_VERIFY_SSL,timeout=INFLUXDB_V2_TIMEOUT) # type: ignore
 
 
 # 查询最新数据
@@ -54,11 +59,11 @@ def insert_data_into_influxdb(database, measurement, data_list: List[dict]):
         .field("buy_amount", data['buy_amount'])
         for data in data_list
     ]
-    response = write_api.write(database,"mydb", points)
+    response = write_api.write(database,f"{org}", points)
     logger.info(f"运行结束:{response}")
 
 def insert_coin_data_into_influxdb(measurement, data_list: List[dict]):
-   insert_data_into_influxdb("binance",measurement, data_list)
+   insert_data_into_influxdb(DATABASE,measurement, data_list)
 
 def generate_data(start_time: datetime, end_time: datetime, num_points: int) -> List[Dict[str, any]]:
     time_step = (end_time - start_time) / num_points

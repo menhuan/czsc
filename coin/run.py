@@ -33,7 +33,7 @@ def get_time(freq):
 
 # 用来计算时间间隔，每次调用的时间间隔数据,按照一次500来计算吧
 def interval_time_end_time(start_time, freq):
-    interval_times = os.getenv("times_interval", 900)
+    interval_times = os.getenv("times_interval", 1000)
     end_time = start_time + 500 * get_time(freq)
     return end_time
 
@@ -83,7 +83,7 @@ def collect_coin():
                                 interval_time = interval_time_end_time(int(start_time), v)
 
                                 # 根据时间戳获取数据 
-                                bars = kline(symbol, interval=v.value, startTime=int(start_time), endTime=int(end_time))
+                                bars = kline(symbol, interval=v.value, startTime=int(start_time), endTime=int(end_time),limit=int(os.getenv("times_interval", 1)))
                                 start_time = interval_time
                                 time.sleep(sleep_time)
                                 if(len(bars) == 0):
